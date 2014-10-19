@@ -8,56 +8,61 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using RFCOMAPILib;
-
 using Form = System.Windows.Forms.Form;
 
-
-namespace TDriver
-{
-    
-    public partial class Main : Form
-    {
+namespace TDriver {
+    public partial class Main : Form {
+        private readonly Settings _Settings;
         public List<Fax> Faxes;
-        private Settings tSettings;
-        public Main()
-        {
+
+        private struct FaxWork {
+            public FaxWork(Fax fFax, DPAType faxWorkDPAType) {
+                fax = fFax;
+                UserId = faxWorkDPAType.UserId;
+                Server = faxWorkDPAType.Server;
+                MoveLocation = faxWorkDPAType.MoveFolder;
+                sDPAType = faxWorkDPAType.Name;
+            }
+            readonly public Fax fax;
+            readonly public string UserId;
+            readonly public string Server;
+            readonly public string MoveLocation;
+            readonly public string sDPAType;
+            //Define operator overloads for FaxWork Comparisons.
+            public static bool operator == (FaxWork work1, FaxWork work2) {
+                   return work1.Equals(work2);
+               }
+            public static bool operator !=(FaxWork work1, FaxWork work2){
+                   return !work1.Equals(work2);
+               }
+        }
+
+        private static FaxWork EmptyWork;
+
+        public Main() {
             InitializeComponent();
-            tSettings = new Settings(Application.ExecutablePath + "Settings.ini");
+            _Settings = new Settings(Application.StartupPath + "\\Settings.ini");
 
             // TODO Update Log settings if default
             // TODO Prompt user to close and update ini file.
-
         }
 
-
-        private void ProcessFax(Tuple<Fax, String> work)
-        {
-            if (SendFax(work.Item1, work.Item2))
+        /// <summary>
+        /// Process a fax by sending and moving it if successful.
+        /// </summary>
+        /// <param name="work">Work to be performed.</param>
+        private void ProcessFax(FaxWork work) {
+            if (SendFax(work.fax, work.Server, work.UserId))
             {
-                //Determine where to move the files.
-                String moveFolder;
-                switch (work.Item2)
-                {
-                    case "active":
-                        moveFolder = TDriver.Settings.Default.ActiveMoveLocation;
-                        break;
-                    case "cutin":
-                        moveFolder = TDriver.Settings.Default.CutInMoveLocation;
-                        break;
-                    default:
-                        moveFolder = TDriver.Settings.Default.ActiveMoveLocation;
-                        break;
+               
+                try {
+                    MoveCompletedFax(work.fax.Document, work.MoveLocation);
                 }
-                try
-                {
-                    MoveCompletedFax(work.Item1.Document, moveFolder);
-                }
-                catch (Exception ex)
-                {
+                catch (Exception ex) {
                     LogError(ex.Message);
                 }
 
-                LogFax(work.Item1, work.Item2);
+                LogFax(work.fax, work.sDPAType);
             }
         }
 
@@ -70,32 +75,25 @@ namespace TDriver
         /// <param name="faxNumber"></param>
         /// <returns></returns>
         private Fax CreateFax(string file, FaxInfoType faxInfoType = FaxInfoType.Manual, string recipient = "DEFAULT",
-            string faxNumber = "DEFAULT")
-        {
+            string faxNumber = "DEFAULT") {
             Fax fax;
-            if (faxInfoType == FaxInfoType.Parsed)
-            {
+            if (faxInfoType == FaxInfoType.Parsed) {
                 fax = new Fax(file);
             }
-            else if (faxInfoType == FaxInfoType.Manual)
-            {
+            else if (faxInfoType == FaxInfoType.Manual) {
                 fax = new Fax(file, recipient, faxNumber);
             }
-            else
-            {
+            else {
                 fax = new Fax();
             }
             return fax;
         }
 
-        private bool SendFax(Fax fax, String userId)
-        {
-            try
-            {
+        private bool SendFax(Fax fax, String userId, String faxServerName) {
+            try {
                 //Setup Rightfax Server Connection
-                var faxsvr = new FaxServer
-                {
-                    ServerName = TDriver.Settings.Default.FaxServerName,
+                var faxsvr = new FaxServer {
+                    ServerName = faxServerName,
                     AuthorizationUserID = userId,
                     Protocol = CommunicationProtocolType.cpTCPIP,
                     UseNTAuthentication = BoolType.False
@@ -103,10 +101,8 @@ namespace TDriver
                 faxsvr.OpenServer();
 
                 //Create the fax and send.
-                if (fax.IsValid)
-                {
-                    try
-                    {
+                if (fax.IsValid) {
+                    try {
                         var newFax = (RFCOMAPILib.Fax) faxsvr.get_CreateObject(CreateObjectType.coFax);
                         newFax.ToName = fax.CustomerName;
                         newFax.ToFaxNumber = Regex.Replace(fax.FaxNumber, "-", "");
@@ -115,48 +111,41 @@ namespace TDriver
                         newFax.Send();
                         // TODO newFax.MoveToFolder 
                     }
-                    catch (Exception ex)
-                    {
+                    catch (Exception ex) {
                         LogError(ex.Message);
                     }
                 }
-                else
-                {
+                else {
                     return false;
                 }
                 faxsvr.CloseServer();
                 return true;
             }
 
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 MessageBox.Show(Environment.NewLine + e, "RightFax Error");
                 return false;
             }
         }
 
-        private void MoveCompletedFax(string pathToDocument, string folderDestination)
-        {
+        private void MoveCompletedFax(string pathToDocument, string folderDestination) {
             string fileName = Path.GetFileName(pathToDocument);
             if (fileName == null) return;
             string saveTo = Path.Combine(folderDestination, fileName);
 
             //Delete the file in the destination if it exists already.
             // since File.Move does not overwrite.
-            if (File.Exists(saveTo))
-            {
+            if (File.Exists(saveTo)) {
                 File.Delete(saveTo);
             }
             File.Move(pathToDocument, saveTo);
         }
 
-        private void LogFax(Fax fax, string userId)
-        {
-            string logFile = tSettings.LogFile;
+        private void LogFax(Fax fax, string userId) {
+            string logFile = _Settings.LogFile;
             DateTime logTime = DateTime.Now;
 
-            if (!File.Exists(logFile))
-            {
+            if (!File.Exists(logFile)) {
                 FileStream fs = File.Create(logFile);
                 fs.Close();
             }
@@ -171,13 +160,11 @@ namespace TDriver
         ///     Logs an error message.
         /// </summary>
         /// <param name="message">Error to be logged.</param>
-        private void LogError(string message)
-        {
-            string logFile = tSettings.ErrorFile;
+        private void LogError(string message) {
+            string logFile = _Settings.ErrorFile;
             DateTime logTime = DateTime.Now;
 
-            if (!File.Exists(logFile))
-            {
+            if (!File.Exists(logFile)) {
                 FileStream fs = File.Create(logFile);
                 fs.Close();
             }
@@ -192,20 +179,16 @@ namespace TDriver
         ///     Adds files to the queue manually.
         /// </summary>
         /// <param name="files">Files to be added to queue.</param>
-        /// <param name="rightFaxUser">User to be faxed out from.</param>
-        private void ManualAddition(IEnumerable<string> files, String rightFaxUser)
-        {
-            foreach (string file in files)
-            {
+        /// <param name="workDPAType">User to be faxed out from.</param>
+        private void ManualAddition(IEnumerable<string> files, DPAType workDPAType) {
+            foreach (string file in files) {
                 Fax fax = CreateFax(file, FaxInfoType.Parsed);
                 //Add fax to queue if valid.
-                if (fax.IsValid)
-                {
-                    var work = new Tuple<Fax, string>(fax, rightFaxUser);
+                if (fax.IsValid) {
+                    var work = new FaxWork(fax, workDPAType);
                     AddFaxToQueue(work);
                 }
-                else
-                {
+                else {
                     Debug.WriteLine(fax.Account + " was skipped.");
                     fax = null;
                 }
@@ -215,25 +198,14 @@ namespace TDriver
         /// <summary>
         ///     Adds all files to the queue from within the settings directories.
         /// </summary>
-        private void QueueDirectory()
-        {
-            // Define the folders from settings.
-            String activeDirectory = TDriver.Settings.Default.ActiveFolder;
-            String cutinDirectory = TDriver.Settings.Default.CutinFolder;
-
-            // If the active folder exists, take all files and check if they are valid faxes
-            if (!Directory.Exists(activeDirectory)) return;
-            string[] activeFiles = Directory.GetFiles(activeDirectory);
-            if (activeFiles.Any())
-            {
-                ManualAddition(activeFiles, "active");
-            }
-            // If the cutin folder exists, take all files and check if they are valid faxes
-            if (!Directory.Exists(cutinDirectory)) return;
-            string[] cutinFiles = Directory.GetFiles(cutinDirectory);
-            if (cutinFiles.Any())
-            {
-                ManualAddition(cutinFiles, "active");
+        private void QueueDirectory() {
+            //Queue each DPA from folders defined in the settings.
+            foreach (DPAType dpaType in _Settings.WatchList) {
+                if (!Directory.Exists(dpaType.WatchFolder)) return; //Skip if the directory doesn't exist
+                string[] existingDPAFiles = Directory.GetFiles(dpaType.WatchFolder);
+                if (existingDPAFiles.Any()) {
+                    ManualAddition(existingDPAFiles, dpaType);
+                }
             }
         }
 
@@ -243,119 +215,34 @@ namespace TDriver
 
         private Boolean _isPolling;
 
-        /// <summary>
-        ///     Polls the desired folder.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void btnPoll_Click(object sender, RoutedEventArgs e)
-        {
+        private void btnFax_Click(object sender, EventArgs e) {
             // Stops the watcher if it's currently polling.
-            if (_isPolling)
-            {
+            if (_isPolling) {
                 Debug.WriteLine("Poll haulted.");
-                btnPoll.IsEnabled = false;
-                btnPoll.Content = "Start Faxing";
+                btnFax.Enabled = false;
+                btnFax.Text = "Start Faxing";
                 StopQWorker();
                 _isPolling = false;
-                btnPoll.IsEnabled = true;
+                btnFax.Enabled = true;
             }
-            else //Start the watcher if it isn't polling.
-            {
+            //Start the watcher if it isn't polling.
+            else {
                 Debug.WriteLine("Poll requested.");
-                btnPoll.IsEnabled = false;
+                btnFax.Enabled = false;
 
                 QueueDirectory();
 
                 StartQWorker();
 
-                WatchFolder(TDriver.Settings.Default.ActiveFolder, "active");
-                WatchFolder(TDriver.Settings.Default.CutinFolder, "cutin");
-                btnPoll.Content = "Stop Faxing";
+                //Watch each folder from the settings
+                foreach (DPAType dpaType in _Settings.WatchList) {
+                    WatchFolder(dpaType.WatchFolder,dpaType);
+                    //Update UI with folders being watched.
+                }
+                btnFax.Text = "Stop Faxing";
                 _isPolling = true;
-                btnPoll.IsEnabled = true;
+                btnFax.Enabled = true;
             }
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            //Setup file dialog box
-            var dlg = new OpenFileDialog
-            {
-                Multiselect = true,
-                Filter = "Word Documents|*.doc;*.docx|All files (*.*)|*.*",
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                Title = "Select the documents you wish to fax.",
-                ReadOnlyChecked = true
-            };
-            dlg.ShowDialog();
-
-            //Stop if no files were selected.
-            if (dlg.FileNames.Length <= 0)
-            {
-                Debug.Print("No files selected to be faxed.");
-            }
-            string[] files = dlg.FileNames;
-            string selectedUser = GetSelectedRightFaxUser();
-            ManualAddition(files, selectedUser);
-        }
-
-        private void FileDrop(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                var files = (string[]) e.Data.GetData(DataFormats.FileDrop);
-                string selectedUser = GetSelectedRightFaxUser();
-                ManualAddition(files, selectedUser);
-            }
-        }
-
-        private string GetSelectedRightFaxUser()
-        {
-            string selectedUser;
-            if ((bool) ActiveUserRatio.IsChecked)
-            {
-                selectedUser = "active";
-            }
-            else if ((bool) CutinUserRatio.IsChecked)
-            {
-                selectedUser = "cutin";
-            }
-            else
-            {
-                selectedUser = "active";
-            }
-            return selectedUser;
-        }
-
-        private void FileDrag(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                e.Effects = DragDropEffects.Link;
-            }
-        }
-
-        /// <summary>
-        ///     Closes the form.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
-
-        private void OptionsItem_Click(object sender, RoutedEventArgs e)
-        {
-            //var newWindow = new Options();
-            //newWindow.Show();
-        }
-
-        private void AboutItem_Click(object sender, RoutedEventArgs e)
-        {
-            var newWindow = new About();
-            newWindow.Show();
         }
 
         #endregion
@@ -366,34 +253,28 @@ namespace TDriver
         ///     Create a new watcher for every folder we want to monitor.
         /// </summary>
         /// <param name="sPath">Folder to monitor.</param>
-        /// <param name="rightFaxUser">RightFax user to send faxes out as.</param>
-        private void WatchFolder(string sPath, string rightFaxUser)
-        {
-            try
-            {
+        /// <param name="folderDPAType">DPAType the folder is..</param>
+        private void WatchFolder(string sPath, DPAType folderDPAType) {
+            try {
                 //Check if the directory exists.
-                if (!Directory.Exists(sPath))
-                {
+                if (!Directory.Exists(sPath)) {
                     LogError(sPath + " does not exist!");
                     return;
                 }
 
                 // Watch the directory for new files.
-                var fsw = new FileSystemWatcher(sPath, "*.doc")
-                {
+                var fsw = new FileSystemWatcher(sPath, "*.doc") {
                     NotifyFilter = NotifyFilters.CreationTime | NotifyFilters.FileName
                 };
-                fsw.Created += (sender, e) => NewFileCreated(sender, e, rightFaxUser);
+                fsw.Created += (sender, e) => NewFileCreated(sender, e, folderDPAType);
                 fsw.EnableRaisingEvents = true;
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 Debug.WriteLine(ex.Message);
             }
         }
 
-        private void NewFileCreated(object sender, FileSystemEventArgs e, String rightFaxUser)
-        {
+        private void NewFileCreated(object sender, FileSystemEventArgs e, DPAType fileDPAType) {
             Debug.WriteLine("New File detected!");
             string file = e.FullPath;
 
@@ -404,13 +285,11 @@ namespace TDriver
             Fax fax = CreateFax(file, FaxInfoType.Parsed);
 
             //Add fax to queue if valid.
-            if (fax.IsValid)
-            {
-                var work = new Tuple<Fax, string>(fax, rightFaxUser);
+            if (fax.IsValid) {
+                var work = new FaxWork(fax,fileDPAType);
                 AddFaxToQueue(work);
             }
-            else
-            {
+            else {
                 Debug.WriteLine(fax.Account + " was skipped.");
                 fax = null;
             }
@@ -425,7 +304,7 @@ namespace TDriver
         /// </summary>
         private readonly EventWaitHandle _doQWork = new EventWaitHandle(false, EventResetMode.ManualReset);
 
-        private readonly Queue<Tuple<Fax, String>> _faxQueue = new Queue<Tuple<Fax, String>>(50);
+        private readonly Queue<FaxWork> _faxQueue = new Queue<FaxWork>(50);
         private readonly Object _zLock = new object();
 
 
@@ -433,65 +312,53 @@ namespace TDriver
 
         private Boolean _quitWork;
 
-        private void StopQWorker()
-        {
+        private void StopQWorker() {
             _quitWork = true;
             _doQWork.Set();
             _queueWorker.Join(1000);
         }
 
-        private void StartQWorker()
-        {
+        private void StartQWorker() {
             _queueWorker = new Thread(QThread) {IsBackground = true};
             _queueWorker.Start();
         }
 
-        private void AddFaxToQueue(Tuple<Fax, String> work)
-        {
-            lock (_zLock)
-            {
+        private void AddFaxToQueue(FaxWork work) {
+            lock (_zLock) {
                 _faxQueue.Enqueue(work);
             }
             _doQWork.Set();
         }
 
-        private void QThread()
-        {
+        private void QThread() {
             Debug.WriteLine("Thread Started.");
-            do
-            {
+            do {
                 Debug.WriteLine("Thread Waiting.");
                 _doQWork.WaitOne(-1, false);
                 Debug.WriteLine("Checking for work.");
-                if (_quitWork)
-                {
+                if (_quitWork) {
                     break;
                 }
-                Tuple<Fax, String> dequeuedWork;
-                do
-                {
-                    dequeuedWork = null;
+                FaxWork dequeuedWork;
+                do {
+                    dequeuedWork = EmptyWork;
                     Debug.WriteLine("Dequeueing");
-                    lock (_zLock)
-                    {
-                        if (_faxQueue.Count > 0)
-                        {
+                    lock (_zLock) {
+                        if (_faxQueue.Count > 0) {
                             dequeuedWork = _faxQueue.Dequeue();
                         }
                     }
 
-                    if (dequeuedWork != null)
+                    if (dequeuedWork != EmptyWork)
                     {
                         Debug.WriteLine("Working");
                         ProcessFax(dequeuedWork);
                         Debug.WriteLine("Work Completed!");
                     }
-                } while (dequeuedWork != null);
+                } while (dequeuedWork != EmptyWork);
 
-                lock (_zLock)
-                {
-                    if (_faxQueue.Count == 0)
-                    {
+                lock (_zLock) {
+                    if (_faxQueue.Count == 0) {
                         _doQWork.Reset();
                     }
                 }
@@ -503,8 +370,7 @@ namespace TDriver
         #endregion
 
         [Flags]
-        private enum FaxInfoType
-        {
+        private enum FaxInfoType {
             Parsed,
             Manual
         };

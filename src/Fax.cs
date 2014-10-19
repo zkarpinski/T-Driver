@@ -1,16 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace TDriver
 {
-    public class Fax
+    public class Fax:DPA
     {
-        //Class Properties
-        public Fax()
-        {
-        }
+
+        public string FaxNumber { get; private set; }
 
         /// <summary>
         ///     Fax with predetermined info
@@ -32,9 +29,6 @@ namespace TDriver
         /// <param name="document"></param>
         public Fax(String document)
         {
-            IsValid = true;
-            Sent = false;
-            Rejected = false;
             Document = document;
             FileName = Path.GetFileNameWithoutExtension(document);
             ParseFileName(FileName);
@@ -45,15 +39,6 @@ namespace TDriver
                 IsValid = false;
             }
         }
-
-        public string CustomerName { get; set; }
-        public string FaxNumber { get; set; }
-        public string Document { get; set; }
-        public string Account { get; set; }
-        public string FileName { get; set; }
-        public Boolean IsValid { get; set; }
-        public Boolean Sent { get; set; }
-        public Boolean Rejected { get; set; }
 
         //~Fax() { }
 
@@ -79,16 +64,5 @@ namespace TDriver
             //TODO If strSplit[5] != "FaxTo", append it. (Add names with Hyphens)
         }
 
-        private string RegexFileName(string pattern)
-        {
-            var rgx = new Regex(pattern, RegexOptions.IgnoreCase);
-            MatchCollection matches = rgx.Matches(FileName);
-            if (matches.Count > 0)
-            {
-                return matches[0].Value;
-            }
-            IsValid = false;
-            return "NOT_FOUND";
-        }
     }
 }

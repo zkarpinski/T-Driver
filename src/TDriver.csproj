@@ -63,7 +63,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DPA.cs" />
+    <Compile Include="Email.cs" />
+    <Compile Include="EmailWork.cs" />
     <Compile Include="Fax.cs" />
+    <Compile Include="FaxWork.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -75,6 +79,7 @@
     <Compile Include="Queue.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Watcher.cs" />
+    <Compile Include="Work.cs" />
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>
@@ -100,7 +105,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <None Include="Settings.ini">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>

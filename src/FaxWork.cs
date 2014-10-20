@@ -4,8 +4,8 @@ using RFCOMAPILib;
 
 namespace TDriver {
     public class FaxWork : Work {
-        public readonly string Server;
-        public readonly string UserId;
+        private readonly string Server;
+        private readonly string UserId;
         public readonly Fax fax;
 
 
@@ -15,19 +15,12 @@ namespace TDriver {
             Server = faxWorkDPAType.Server;
             MoveLocation = faxWorkDPAType.MoveFolder;
             KindOfDPA = faxWorkDPAType.Name;
+            DPAFile = fFax.Document;
         }
-        /*
-        //Define operator overloads for FaxWork Comparisons.
-        public static bool operator ==(FaxWork work1, FaxWork work2) {
-            return work1.Equals(work2);
-        }
-
-        public static bool operator !=(FaxWork work1, FaxWork work2) {
-            return !work1.Equals(work2);
-        }
-         */
 
         public override Boolean Process() {
+#if RELEASE
+
             try {
                 //Setup Rightfax Server Connection
                 FaxServer faxsvr = SetupRightFaxServer();
@@ -50,6 +43,12 @@ namespace TDriver {
             catch (Exception e) {
                 return false;
             }
+#endif
+#if DEBUG
+            //Debug result :: Faxing Success.
+            return true;
+#endif
+
         }
 
         private FaxServer SetupRightFaxServer() {

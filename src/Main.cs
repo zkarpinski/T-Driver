@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using RFCOMAPILib;
 using Form = System.Windows.Forms.Form;
-
 namespace TDriver {
     [Flags]
     public enum FaxInfoType {
@@ -15,72 +12,17 @@ namespace TDriver {
         Manual
     };
 
-  
     public partial class Main : Form {
         private readonly Settings _settings;
-        public Queue DPAQueue;
+
+        public WorkQueue DPAWorkQueue;
+        private List<Watcher> _folderWatchList;
 
         public Main() {
             InitializeComponent();
             _settings = new Settings(Application.StartupPath + "\\Settings.ini");
             // TODO Update Log settings if default
             // TODO Prompt user to close and update ini file.
-        }
-
-        /// <summary>
-        ///     Process a fax by sending and moving it if successful.
-        /// </summary>
-        /// <param name="work">Work to be performed.</param>
-        private void ProcessFax(FaxWork work) {
-            if (SendFax(work.fax, work.Server, work.UserId)) {
-                try {
-                    MoveCompletedFax(work.fax.Document, work.MoveLocation);
-                }
-                catch (Exception ex) {
-                    LogError(ex.Message);
-                }
-
-                LogFax(work.fax, work.KindOfDPA);
-            }
-        }
-
-        private bool SendFax(Fax fax, String userId, String faxServerName) {
-            try {
-                //Setup Rightfax Server Connection
-                var faxsvr = new FaxServer {
-                    ServerName = faxServerName,
-                    AuthorizationUserID = userId,
-                    Protocol = CommunicationProtocolType.cpTCPIP,
-                    UseNTAuthentication = BoolType.False
-                };
-                faxsvr.OpenServer();
-
-                //Create the fax and send.
-                if (fax.IsValid) {
-                    try {
-                        var newFax = (RFCOMAPILib.Fax) faxsvr.get_CreateObject(CreateObjectType.coFax);
-                        newFax.ToName = fax.CustomerName;
-                        newFax.ToFaxNumber = Regex.Replace(fax.FaxNumber, "-", "");
-                        newFax.Attachments.Add(fax.Document);
-                        newFax.UserComments = "Sent via SAMuel.";
-                        newFax.Send();
-                        // TODO newFax.MoveToFolder 
-                    }
-                    catch (Exception ex) {
-                        LogError(ex.Message);
-                    }
-                }
-                else {
-                    return false;
-                }
-                faxsvr.CloseServer();
-                return true;
-            }
-
-            catch (Exception e) {
-                MessageBox.Show(Environment.NewLine + e, "RightFax Error");
-                return false;
-            }
         }
 
         private void MoveCompletedFax(string pathToDocument, string folderDestination) {
@@ -134,38 +76,49 @@ namespace TDriver {
 
         private Boolean _isPolling;
 
-        private void btnFax_Click(object sender, EventArgs e) {
-            // Stops the watcher if it's currently polling.
-            if (_isPolling) {
-                Debug.WriteLine("Poll haulted.");
-                btnFax.Enabled = false;
-                btnFax.Text = "Start Faxing";
-                DPAQueue.StopQWorker();
-                _isPolling = false;
-                btnFax.Enabled = true;
-                DPAQueue = null;
-            }
-                //Start the watcher if it isn't polling.
-            else {
-                DPAQueue = new Queue();
+        private void tsBtnStart_Click(object sender, EventArgs e)
+        {
+            //Start the watcher
+                tbtnStart.Enabled = false;
+                DPAWorkQueue = new WorkQueue();
+                _folderWatchList = new List<Watcher>(Settings.MaxWatchlistSize);
                 Debug.WriteLine("Poll requested.");
-                btnFax.Enabled = false;
 
-                DPAQueue.StartQWorker();
+                DPAWorkQueue.StartQWorker();
 
-                foreach (DPAType dpaType in _settings.WatchList) {
+                foreach (DPAType dpaType in _settings.WatchList)
+                {
                     //Queue Existing Files in the folder
-                    DPAQueue.QueueDirectory(dpaType.WatchFolder, dpaType);
+                    DPAWorkQueue.QueueDirectory(dpaType.WatchFolder, dpaType);
                     //Setup watcher for the folder.
-                    Watcher.WatchFolder(dpaType.WatchFolder, dpaType,DPAQueue);
+                    _folderWatchList.Add(new Watcher(dpaType.WatchFolder, dpaType, ref DPAWorkQueue));
                     //TODO Update UI with folders being watched.
                 }
-                btnFax.Text = "Stop Faxing";
+                tbtnStop.Enabled = true;
+                tslblStatus.Text = "Running";
+                tslblStatus.ForeColor = System.Drawing.Color.Green;
                 _isPolling = true;
-                btnFax.Enabled = true;
+            
+        }
+
+        private void tbtnStop_Click(object sender, EventArgs e)
+        {
+            // Stops the watchers.
+            if (_isPolling)
+            {
+                tbtnStop.Enabled = false;
+                Debug.WriteLine("Poll haulted.");
+                tslblStatus.Text = "Stopped";
+                tslblStatus.ForeColor = System.Drawing.Color.DarkRed;
+                DPAWorkQueue.StopQWorker();
+                _isPolling = false;
+                DPAWorkQueue = null;
+                tbtnStart.Enabled = true;
             }
         }
 
         #endregion
+
+
     }
 }

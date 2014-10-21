@@ -22,17 +22,5 @@ namespace TDriver.Properties {
                 return defaultInstance;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("DEFAULT")]
-        public string LogLocation {
-            get {
-                return ((string)(this["LogLocation"]));
-            }
-            set {
-                this["LogLocation"] = value;
-            }
-        }
     }
 }

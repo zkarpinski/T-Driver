@@ -18,9 +18,13 @@ namespace TDriver {
             DPAFile = fFax.Document;
         }
 
-        public override Boolean Process() {
-#if RELEASE
-
+        public override Boolean Process()
+        {
+#if DEBUG
+            //Debug result :: Faxing Success.
+            return true;
+#else
+            //Release Fax Process
             try {
                 //Setup Rightfax Server Connection
                 FaxServer faxsvr = SetupRightFaxServer();
@@ -43,10 +47,6 @@ namespace TDriver {
             catch (Exception e) {
                 return false;
             }
-#endif
-#if DEBUG
-            //Debug result :: Faxing Success.
-            return true;
 #endif
 
         }

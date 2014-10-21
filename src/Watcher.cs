@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Threading;
+using Timer = System.Timers.Timer;
 
 namespace TDriver {
     public class Watcher {
@@ -24,9 +24,9 @@ namespace TDriver {
 
                 // Watch the directory for new files.
                 var fsw = new FileSystemWatcher(sPath, "*.doc") {
-                    NotifyFilter = NotifyFilters.CreationTime | NotifyFilters.FileName
+                    NotifyFilter = NotifyFilters.FileName
                 };
-                fsw.Created += (sender, e) => NewFileCreated(sender, e, folderDPAType);
+                fsw.Created += (sender, e) => ArtificalWait(e, folderDPAType);
                 fsw.EnableRaisingEvents = true;
             }
             catch (Exception ex) {
@@ -34,24 +34,37 @@ namespace TDriver {
             }
         }
 
-        private static void NewFileCreated(object sender, FileSystemEventArgs e, DPAType fileDPAType) {
+        /// <summary>
+        /// An artifical wait to handle duplicate file creations bug from our web application.
+        /// </summary>
+        /// <param name="fsEventArgs"></param>
+        /// <param name="fileDPAType"></param>
+        private static void ArtificalWait(FileSystemEventArgs fsEventArgs, DPAType fileDPAType) {
+            var aTimer = new Timer(10000);
+
+            aTimer.AutoReset = false;
+           aTimer.Elapsed += (sender, e) => NewFileCreated(fsEventArgs, fileDPAType);
+            aTimer.Enabled = true;
+
+        }
+
+
+        private static void NewFileCreated(FileSystemEventArgs e, DPAType fileDPAType) {
+
             Debug.WriteLine("New File detected!");
             string file = e.FullPath;
 
-            //Wait 2 seconds incase the file is being created still.
-            Thread.Sleep(2000);
+            //Create dpa from factory
+            DPA dpa = DPAFactory.Create(file);
 
-            //Create each fax object from the file.
-            var fax = new Fax(file);
-
-            //Add fax to queue if valid.
-            if (fax.IsValid) {
-                var work = new FaxWork(fax, fileDPAType);
+            //Create a work request and add to queue.
+            if (dpa.IsValid) {
+                var work = new FaxWork((Fax)dpa, fileDPAType);
                 _dpaWorkQueue.AddFaxToQueue(work);
             }
             else {
-                Debug.WriteLine(fax.Account + " was skipped.");
-                fax = null;
+                Debug.WriteLine(dpa.Account + " was skipped.");
+                dpa = null;
             }
         }
     }

@@ -78,6 +78,7 @@ namespace TDriver {
             string[] existingDPAFiles = Directory.GetFiles(directoryToQueue);
             if (existingDPAFiles.Any()) {
                 ManualAddition(existingDPAFiles, dpaType);
+
             }
         }
 

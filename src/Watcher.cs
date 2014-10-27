@@ -40,10 +40,9 @@ namespace TDriver {
         /// <param name="fsEventArgs"></param>
         /// <param name="fileDPAType"></param>
         private static void ArtificalWait(FileSystemEventArgs fsEventArgs, DPAType fileDPAType) {
-            var aTimer = new Timer(10000);
+            var aTimer = new Timer(10000) {AutoReset = false};
 
-            aTimer.AutoReset = false;
-           aTimer.Elapsed += (sender, e) => NewFileCreated(fsEventArgs, fileDPAType);
+            aTimer.Elapsed += (sender, e) => NewFileCreated(fsEventArgs, fileDPAType);
             aTimer.Enabled = true;
 
         }

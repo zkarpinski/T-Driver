@@ -28,14 +28,12 @@ namespace TDriver {
                 File.Delete(saveAs);
             }
             try {
-                
-            File.Move(DPAFile, saveAs);
+                File.Move(DPAFile, saveAs);
                 return true;
             }
             catch (Exception) {
                 return false;
             }
-
         }
 
         public abstract Boolean Process();

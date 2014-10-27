@@ -1,25 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
-namespace TDriver
-{
+namespace TDriver {
     /// <summary>
-    /// Determines the DPA type and creates the corresponding object file.
-    ///  </summary>
+    ///     Determines the DPA type and creates the corresponding object file.
+    /// </summary>
     /// <remarks>
-    /// Valid File Names:
+    ///     Valid File Names:
     ///     DPA-99999-99999-FaxTo-1-999-999-9999-To-NAME_HERE.doc
     ///     DPA-99999-99999.doc
-    ///     
-    /// 
-    ///  </remarks>
-    public class DPAFactory
-    {
-
+    /// </remarks>
+    public static class DPAFactory {
         public static DPA Create(string file) {
             //Verify it follows general naming convention
             String fileName = Path.GetFileNameWithoutExtension(file);
@@ -27,32 +19,33 @@ namespace TDriver
             String faxNumber = RegexFileName(@"\d{3}-\d{3}-\d{4}", fileName); //Without US-code
 
             //Check if Fax name
-            if ((faxNumber != "NOT_FOUND") && (accountNumber != "NOT_FOUND"))
-            {
+            if ((faxNumber != "NOT_FOUND") && (accountNumber != "NOT_FOUND")) {
                 return new Fax(file);
             }
-            
-        
 
+            //TODO Check for email/mail/fax by opening with word.
+#if DEBUG 
 
-        //Create Word Object
-                //Check if Email @
+            //Create Word Object
+            //Check if Email @
             //return new Email(file);
-                //Check if Address City NY 11111
+            //Check if Address City NY 11111
 
-                //Check again for fax number
-            return new Fax(file);
+            //Check again for fax number
+#endif
+            //Create Word Object
+            //Check if Email @
+            //return new Email(file);
+            //Check if Address City NY 11111
+
+            //Check again for fax number
+            return new Fax(file); //Keep for now
         }
 
-        private static string RegexFileName(string pattern, string fileName)
-        {
+        private static string RegexFileName(string pattern, string fileName) {
             var rgx = new Regex(pattern, RegexOptions.IgnoreCase);
             MatchCollection matches = rgx.Matches(fileName);
-            if (matches.Count == 1) //SHOULD only be one match.
-            {
-                return matches[0].Value;
-            }
-            return "NOT_FOUND";
+            return matches.Count == 1 ? matches[0].Value : "NOT_FOUND";
         }
     }
 }

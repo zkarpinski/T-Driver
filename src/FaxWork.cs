@@ -4,15 +4,15 @@ using RFCOMAPILib;
 
 namespace TDriver {
     public class FaxWork : Work {
-        private readonly string Server;
-        private readonly string UserId;
+        private readonly string _server;
+        private readonly string _userId;
         public readonly Fax fax;
 
 
         public FaxWork(Fax fFax, DPAType faxWorkDPAType) {
             fax = fFax;
-            UserId = faxWorkDPAType.UserId;
-            Server = faxWorkDPAType.Server;
+            _userId = faxWorkDPAType.UserId;
+            _server = faxWorkDPAType.Server;
             MoveLocation = faxWorkDPAType.MoveFolder;
             KindOfDPA = faxWorkDPAType.Name;
             DPAFile = fFax.Document;
@@ -24,7 +24,7 @@ namespace TDriver {
             //Debug result :: Faxing Success.
             return true;
 #else
-            //Release Fax Process
+            //Release: Fax Process
             try {
                 //Setup Rightfax Server Connection
                 FaxServer faxsvr = SetupRightFaxServer();
@@ -53,8 +53,8 @@ namespace TDriver {
 
         private FaxServer SetupRightFaxServer() {
             var faxsvr = new FaxServer {
-                ServerName = Server,
-                AuthorizationUserID = UserId,
+                ServerName = _server,
+                AuthorizationUserID = _userId,
                 Protocol = CommunicationProtocolType.cpTCPIP,
                 UseNTAuthentication = BoolType.False
             };

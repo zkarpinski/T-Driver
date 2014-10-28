@@ -2,22 +2,15 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 
 namespace TDriver {
-    [Flags]
-    public enum FaxInfoType {
-        Parsed,
-        Manual
-    };
-
     public partial class Main : Form {
         private readonly Settings _settings;
 
-        public WorkQueue DPAWorkQueue;
+        private WorkQueue _dpaWorkQueue;
         private List<Watcher> _folderWatchList;
 
         public Main() {
@@ -29,47 +22,19 @@ namespace TDriver {
                 if (resource == null) return null;
 
                 using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resource)) {
-                    var assemblyData = new Byte[stream.Length];
-                    stream.Read(assemblyData, 0, assemblyData.Length);
-                    return Assembly.Load(assemblyData);
+                    if (stream != null) {
+                        var assemblyData = new Byte[stream.Length];
+                        stream.Read(assemblyData, 0, assemblyData.Length);
+                        return Assembly.Load(assemblyData);
+                    }
+                    return null;
                 }
             };
+
             InitializeComponent();
             _settings = new Settings(Application.StartupPath + "\\Settings.ini");
             // TODO Update Log settings if default
             // TODO Prompt user to close and update ini file.
-        }
-
-        private void LogFax(Fax fax, string userId) {
-            string logFile = _settings.LogFile;
-            DateTime logTime = DateTime.Now;
-
-            if (!File.Exists(logFile)) {
-                FileStream fs = File.Create(logFile);
-                fs.Close();
-            }
-            string logAction = String.Format("{0} \t{1}: \t{2}\t{3}\t{4} {5}",
-                logTime.ToString(CultureInfo.InvariantCulture), userId, fax.Account, fax.FaxNumber,
-                fax.CustomerName, Environment.NewLine);
-            File.AppendAllText(logFile, logAction);
-        }
-
-
-        /// <summary>
-        ///     Logs an error message.
-        /// </summary>
-        /// <param name="message">Error to be logged.</param>
-        public void LogError(string message) {
-            string logFile = _settings.ErrorFile;
-            DateTime logTime = DateTime.Now;
-
-            if (!File.Exists(logFile)) {
-                FileStream fs = File.Create(logFile);
-                fs.Close();
-            }
-            string logAction = String.Format("{0} \t ERROR: {1} {2}", logTime.ToString(CultureInfo.InvariantCulture),
-                message, Environment.NewLine);
-            File.AppendAllText(logFile, logAction);
         }
 
         #region UI Interaction
@@ -79,17 +44,17 @@ namespace TDriver {
         private void tsBtnStart_Click(object sender, EventArgs e) {
             //Start the watcher
             tbtnStart.Enabled = false;
-            DPAWorkQueue = new WorkQueue();
+            _dpaWorkQueue = new WorkQueue();
             _folderWatchList = new List<Watcher>(Settings.MaxWatchlistSize);
             Debug.WriteLine("Poll requested.");
 
-            DPAWorkQueue.StartQWorker();
+            _dpaWorkQueue.StartQWorker();
 
             foreach (DPAType dpaType in _settings.WatchList) {
                 //Queue Existing Files in the folder
-                DPAWorkQueue.QueueDirectory(dpaType.WatchFolder, dpaType);
+                _dpaWorkQueue.QueueDirectory(dpaType.WatchFolder, dpaType);
                 //Setup watcher for the folder.
-                _folderWatchList.Add(new Watcher(dpaType.WatchFolder, dpaType, ref DPAWorkQueue));
+                _folderWatchList.Add(new Watcher(dpaType.WatchFolder, dpaType, ref _dpaWorkQueue));
                 //TODO Update UI with folders being watched.
             }
             tbtnStop.Enabled = true;
@@ -102,14 +67,38 @@ namespace TDriver {
             // Stops the watchers.
             if (_isPolling) {
                 tbtnStop.Enabled = false;
+                _dpaWorkQueue.StopQWorker();
+                _isPolling = false;
+                _dpaWorkQueue = null;
                 Debug.WriteLine("Poll haulted.");
                 tslblStatus.Text = "Stopped";
                 tslblStatus.ForeColor = Color.DarkRed;
-                DPAWorkQueue.StopQWorker();
-                _isPolling = false;
-                DPAWorkQueue = null;
                 tbtnStart.Enabled = true;
             }
+        }
+
+        /// <summary>
+        ///     Handles minimize to traybar. (Taskbar is very crowded at work)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void frmMain_Resize(object sender, EventArgs e) {
+            if (FormWindowState.Minimized == WindowState) {
+                notifyIcon1.BalloonTipTitle = "T: Driver";
+                notifyIcon1.BalloonTipText = "Minimized to traybar.";
+                notifyIcon1.ShowBalloonTip(50);
+                ShowInTaskbar = false;
+                Hide();
+            }
+
+            else if (FormWindowState.Normal == WindowState) {
+                ShowInTaskbar = true;
+            }
+        }
+
+        private void notifyIcon1_Click(object sender, EventArgs e) {
+            Show();
+            WindowState = FormWindowState.Normal;
         }
 
         private void exitMenuItem_Click(object sender, EventArgs e) {

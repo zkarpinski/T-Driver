@@ -4,27 +4,28 @@ using RFCOMAPILib;
 
 namespace TDriver {
     public class FaxWork : Work {
+        private readonly string _comment;
         private readonly string _server;
         private readonly string _userId;
         public readonly Fax fax;
 
 
-        public FaxWork(Fax fFax, DPAType faxWorkDPAType) {
+        public FaxWork(Fax fFax, DPAType typeOfDPA) {
             fax = fFax;
-            _userId = faxWorkDPAType.UserId;
-            _server = faxWorkDPAType.Server;
-            MoveLocation = faxWorkDPAType.MoveFolder;
-            KindOfDPA = faxWorkDPAType.Name;
+            _userId = typeOfDPA.UserId;
+            _server = typeOfDPA.Server;
+            _comment = typeOfDPA.FaxComment;
+            MoveLocation = typeOfDPA.MoveFolder;
+            KindOfDPA = typeOfDPA.Name;
             DPAFile = fFax.Document;
         }
 
-        public override Boolean Process()
-        {
+        public override Boolean Process() {
 #if DEBUG
-            //Debug result :: Faxing Success.
+    //Debug result :: Faxing Success.
             return true;
 #else
-            //Release: Fax Process
+            //Release:: Fax Process
             try {
                 //Setup Rightfax Server Connection
                 FaxServer faxsvr = SetupRightFaxServer();
@@ -34,7 +35,8 @@ namespace TDriver {
                 if (fax.IsValid) {
                     RFCOMAPILib.Fax newFax = CreateRightFax_Fax(faxsvr);
                     newFax.Send();
-                    // TODO newFax.MoveToFolder 
+                    // TODO move the fax, within RighFax, to the sent folder.
+                    // newFax.MoveToFolder
                 }
 
                 else {
@@ -48,9 +50,12 @@ namespace TDriver {
                 return false;
             }
 #endif
-
         }
 
+        /// <summary>
+        /// Setup RightFax server connection.
+        /// </summary>
+        /// <returns></returns>
         private FaxServer SetupRightFaxServer() {
             var faxsvr = new FaxServer {
                 ServerName = _server,
@@ -61,12 +66,17 @@ namespace TDriver {
             return faxsvr;
         }
 
+        /// <summary>
+        /// Create the fax on the RightFax server.
+        /// </summary>
+        /// <param name="faxsvr"></param>
+        /// <returns></returns>
         private RFCOMAPILib.Fax CreateRightFax_Fax(FaxServer faxsvr) {
             var newFax = (RFCOMAPILib.Fax) faxsvr.CreateObject[CreateObjectType.coFax];
             newFax.ToName = fax.CustomerName;
-            newFax.ToFaxNumber = Regex.Replace(fax.FaxNumber, "-", "");
+            newFax.ToFaxNumber = "1" + Regex.Replace(fax.FaxNumber, "-", ""); //Add US Code (1)
             newFax.Attachments.Add(fax.Document);
-            newFax.UserComments = "Sent via SAMuel.";
+            newFax.UserComments = _comment;
             return newFax;
         }
     }

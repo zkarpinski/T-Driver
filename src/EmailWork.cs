@@ -5,11 +5,12 @@ namespace TDriver {
         public readonly string SendAs;
         public readonly Email email;
 
-        public EmailWork(Email eEmail, DPAType emailWorkDPAType) {
+        public EmailWork(Email eEmail, DPAType typeOfDPA)
+        {
             email = eEmail;
-            SendAs = emailWorkDPAType.SendEmailFrom;
-            MoveLocation = emailWorkDPAType.MoveFolder;
-            KindOfDPA = emailWorkDPAType.Name;
+            SendAs = typeOfDPA.SendEmailFrom;
+            MoveLocation = typeOfDPA.MoveFolder;
+            KindOfDPA = typeOfDPA.Name;
         }
 
         public override bool Process() {

@@ -13,6 +13,7 @@ namespace TDriver {
         public readonly string Server;
         public readonly string UserId;
         public readonly string WatchFolder;
+        public readonly string FaxComment;
 
         public DPAType(SectionData section) {
             Name = section.SectionName;
@@ -22,6 +23,7 @@ namespace TDriver {
             WatchFolder = section.Keys["WatchFolder"];
             MoveFolder = section.Keys["MoveFolder"];
             SendEmailFrom = section.Keys["SendEmailFrom"];
+            FaxComment = section.Keys["RightFaxComment"];
         }
     }
 

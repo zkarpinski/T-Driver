@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace TDriver {
     /// <summary>
-    ///     Determines the DPA type and creates the corresponding object file.
+    ///     Determines the DPA type and creates the corresponding object.
     /// </summary>
     /// <remarks>
     ///     Valid File Names:
@@ -18,13 +18,14 @@ namespace TDriver {
             String accountNumber = RegexFileName(@"\d{5}-\d{5}", fileName);
             String faxNumber = RegexFileName(@"\d{3}-\d{3}-\d{4}", fileName); //Without US-code
 
-            //Check if Fax name
+            //Check if Fax by standard naming convention.
             if ((faxNumber != "NOT_FOUND") && (accountNumber != "NOT_FOUND")) {
-                return new Fax(file);
+                return new Fax(file,faxNumber,accountNumber);
             }
 
             //TODO Check for email/mail/fax by opening with word.
-#if DEBUG 
+
+#if DEBUG  //TESTING CODE
 
             //Create Word Object
             //Check if Email @
@@ -33,12 +34,6 @@ namespace TDriver {
 
             //Check again for fax number
 #endif
-            //Create Word Object
-            //Check if Email @
-            //return new Email(file);
-            //Check if Address City NY 11111
-
-            //Check again for fax number
             return new Fax(file); //Keep for now
         }
 

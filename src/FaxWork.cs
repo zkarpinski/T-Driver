@@ -22,7 +22,7 @@ namespace TDriver {
 
         public override Boolean Process() {
 #if DEBUG
-    //Debug result :: Faxing Success.
+            //Debug result :: Faxing Success.
             return true;
 #else
             //Release:: Fax Process
@@ -35,7 +35,7 @@ namespace TDriver {
                 if (fax.IsValid) {
                     RFCOMAPILib.Fax newFax = CreateRightFax_Fax(faxsvr);
                     newFax.Send();
-                    // TODO move the fax, within RighFax, to the sent folder.
+                    // TODO move the fax, within RightFax, to the sent folder.
                     // newFax.MoveToFolder
                 }
 
@@ -53,7 +53,7 @@ namespace TDriver {
         }
 
         /// <summary>
-        /// Setup RightFax server connection.
+        ///     Setup RightFax server connection.
         /// </summary>
         /// <returns></returns>
         private FaxServer SetupRightFaxServer() {
@@ -67,7 +67,7 @@ namespace TDriver {
         }
 
         /// <summary>
-        /// Create the fax on the RightFax server.
+        ///     Create the fax on the RightFax server.
         /// </summary>
         /// <param name="faxsvr"></param>
         /// <returns></returns>

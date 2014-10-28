@@ -3,8 +3,15 @@ using System.IO;
 using System.Text.RegularExpressions;
 
 namespace TDriver {
-
     public class DPA {
+        [Flags]
+        public enum DeliveryMethodTypes {
+            Err = 0,
+            Fax = 1,
+            Email = 2,
+            Mail = 3,
+        }
+
         protected DPA(String document) {
             IsValid = true;
             Sent = false;
@@ -24,7 +31,7 @@ namespace TDriver {
         public string Document { get; set; }
         public string Account { get; set; }
         public string FileName { get; set; }
-        public DeliveryMethodTypes DeliveryMethod { get; set;}
+        public DeliveryMethodTypes DeliveryMethod { get; set; }
         public Boolean IsValid { get; set; }
         public Boolean Sent { get; set; }
         public Boolean Rejected { get; set; }
@@ -38,14 +45,5 @@ namespace TDriver {
             IsValid = false;
             return "NOT_FOUND";
         }
-
-        [Flags]
-        public enum DeliveryMethodTypes {
-            Err = 0,
-            Fax = 1,
-            Email = 2,
-            Mail = 3,
-        }
-
     }
 }

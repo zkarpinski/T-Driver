@@ -20,12 +20,12 @@ namespace TDriver {
 
             //Check if Fax by standard naming convention.
             if ((faxNumber != "NOT_FOUND") && (accountNumber != "NOT_FOUND")) {
-                return new Fax(file,faxNumber,accountNumber);
+                return new Fax(file, faxNumber, accountNumber);
             }
 
             //TODO Check for email/mail/fax by opening with word.
 
-#if DEBUG  //TESTING CODE
+#if DEBUG //TESTING CODE
 
             //Create Word Object
             //Check if Email @
@@ -34,7 +34,7 @@ namespace TDriver {
 
             //Check again for fax number
 #endif
-            return new Fax(file); //Keep for now
+            return null;
         }
 
         private static string RegexFileName(string pattern, string fileName) {

@@ -41,27 +41,29 @@ namespace TDriver {
             _queueWorker.Start();
         }
 
-        /// <summary>
-        ///     Adds files to the queue manually.
-        /// </summary>
-        /// <param name="files">Files to be added to queue.</param>
-        /// <param name="workDPAType">User to be faxed out from.</param>
-        private void ManualAddition(IEnumerable<string> files, DPAType workDPAType) {
-            //Todo Combine with Watcher->NewFileCreated event
-            foreach (string file in files) {
-                DPA dpa = DPAFactory.Create(file);
-                //Add DPA to queue if valid.
-                if (dpa.IsValid) {
-                    Work work = WorkFactory.Create(dpa, workDPAType);
-                    AddToQueue(work);
-                }
-                else {
-                    Debug.WriteLine(dpa.Account + " was skipped.");
-                }
+        public void FoundFileCheck(string file, DPAType fileDPAType) {
+            //Create dpa from factory
+            DPA dpa = DPAFactory.Create(file);
+            if (dpa == null) return;
+
+            if (dpa.IsValid) {
+                Work work = WorkFactory.Create(dpa, fileDPAType);
+                if (work == null) return;
+                AddToQueue(work);
+            }
+
+            else {
+                Debug.WriteLine(dpa.Account + " was skipped.");
+                dpa = null;
             }
         }
 
-        public void AddToQueue(Work work) {
+
+        /// <summary>
+        ///     Locks the queue and adds the new work.
+        /// </summary>
+        /// <param name="work"></param>
+        private void AddToQueue(Work work) {
             lock (_zLock) {
                 _workQueue.Enqueue(work);
             }
@@ -69,14 +71,15 @@ namespace TDriver {
         }
 
         /// <summary>
-        ///     Adds all files to the queue from within the settings directories.
+        ///     Checks all files from within the setting's directories, to see if they should be queued to be worked.
         /// </summary>
         public void QueueDirectory(string directoryToQueue, DPAType dpaType) {
-            //Queue each DPA from folders defined in the settings.
             if (!Directory.Exists(directoryToQueue)) return; //Skip if the directory doesn't exist
             string[] existingDPAFiles = Directory.GetFiles(directoryToQueue);
             if (existingDPAFiles.Any()) {
-                ManualAddition(existingDPAFiles, dpaType);
+                foreach (string file in existingDPAFiles) {
+                    FoundFileCheck(file, dpaType);
+                }
             }
         }
 

@@ -22,11 +22,11 @@ namespace TDriver {
                     return;
                 }
 
-                // Watch the directory for new word doc files.
+                // Watch the directory for new word documents.
                 var fsw = new FileSystemWatcher(sPath, "*.doc") {
                     NotifyFilter = NotifyFilters.FileName
                 };
-                fsw.Created += (sender, e) => ArtificalWait(e.FullPath, folderDPAType);
+                fsw.Created += (sender, e) => NewFileCreated(e.FullPath, folderDPAType);
                 fsw.EnableRaisingEvents = true;
             }
             catch (Exception ex) {
@@ -35,35 +35,17 @@ namespace TDriver {
         }
 
         /// <summary>
-        ///     An artifical wait to handle duplicate file creations bug from our web application.
+        ///     Wait then handle the newly created file.
         /// </summary>
         /// <param name="file"></param>
         /// <param name="fileDPAType"></param>
-        private static void ArtificalWait(string file, DPAType fileDPAType)
-        {
+        private static void NewFileCreated(string file, DPAType fileDPAType) {
+            Debug.WriteLine("New File detected!");
+            //An artifical wait to handle duplicate file creations bug from our web application.
             var aTimer = new Timer(10000) {AutoReset = false};
 
-            aTimer.Elapsed += (sender, e) => NewFileCreated(file, fileDPAType);
+            aTimer.Elapsed += (sender, e) => _dpaWorkQueue.FoundFileCheck(file, fileDPAType);
             aTimer.Enabled = true;
-        }
-
-        private static void NewFileCreated(string file, DPAType fileDPAType)
-        {
-            //Todo Combine with ManualAdditon
-            Debug.WriteLine("New File detected!");
-
-            //Create dpa from factory
-            DPA dpa = DPAFactory.Create(file);
-
-            if (dpa.IsValid) {
-                Work work = WorkFactory.Create(dpa, fileDPAType);
-                _dpaWorkQueue.AddToQueue(work);
-            }
-
-            else {
-                Debug.WriteLine(dpa.Account + " was skipped.");
-                dpa = null;
-            }
         }
     }
 }

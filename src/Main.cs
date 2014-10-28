@@ -77,12 +77,9 @@ namespace TDriver {
             }
         }
 
-        /// <summary>
-        ///     Handles minimize to traybar. (Taskbar is very crowded at work)
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+
         private void frmMain_Resize(object sender, EventArgs e) {
+            // Minimize to traybar. (Taskbar is very crowded at work)
             if (FormWindowState.Minimized == WindowState) {
                 notifyIcon1.BalloonTipTitle = "T: Driver";
                 notifyIcon1.BalloonTipText = "Minimized to traybar.";
@@ -96,15 +93,37 @@ namespace TDriver {
             }
         }
 
+        private void notifyIcon1_DoubleClick(object sender, EventArgs e) {
+            // Show the form when the user double clicks on the notify icon. 
+
+            // Set the WindowState to normal if the form is minimized. 
+            if (WindowState == FormWindowState.Minimized)
+                WindowState = FormWindowState.Normal;
+
+            // Focus the form.
+            Activate();
+        }
+
         private void notifyIcon1_Click(object sender, EventArgs e) {
-            Show();
-            WindowState = FormWindowState.Normal;
         }
 
         private void exitMenuItem_Click(object sender, EventArgs e) {
-            Close();
+            this.Close();
         }
 
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
         #endregion
+
+        private void Main_Load(object sender, EventArgs e)
+        {
+
+        }
+
+
+
+
     }
 }

@@ -4,11 +4,8 @@ using System.Linq;
 
 namespace TDriver {
     public class Fax : DPA {
-
-        public string FaxNumber { get; private set; }
-
         /// <summary>
-        /// Fax constructor from DPAFactory.
+        ///     Fax constructor from DPAFactory.
         /// </summary>
         /// <param name="document"></param>
         /// <param name="faxNumber"></param>
@@ -17,7 +14,7 @@ namespace TDriver {
             Account = accountNumber;
             SharedConstructs(document);
             FaxNumber = faxNumber;
-            this.ValidateFaxNumber();
+            ValidateFaxNumber();
         }
 
         /// <summary>
@@ -28,17 +25,18 @@ namespace TDriver {
             SharedConstructs(document);
             Account = RegexFileName(@"\d{5}-\d{5}");
             FaxNumber = RegexFileName(@"\d{3}-\d{3}-\d{4}"); //Regex without US code
-            this.ValidateFaxNumber();
+            ValidateFaxNumber();
         }
 
+        public string FaxNumber { get; private set; }
+
         private void SharedConstructs(String document) {
-            this.DeliveryMethod = DeliveryMethodTypes.Fax;
-            this.Document = document;
-            this.FileName = Path.GetFileNameWithoutExtension(document);
+            DeliveryMethod = DeliveryMethodTypes.Fax;
+            Document = document;
+            FileName = Path.GetFileNameWithoutExtension(document);
             ParseFileName(FileName);
         }
 
-        
 
         //~Fax() { }
 
@@ -62,10 +60,15 @@ namespace TDriver {
             //TODO If strSplit[5] != "FaxTo", append it. (Add names with Hyphens)
         }
 
+        /// <summary>
+        ///     Validate the fax number.
+        /// </summary>
+        /// <remarks>
+        ///     999-999-999 and 888-888-8888 are common numbers used when incorrect form is used.
+        /// </remarks>
         private void ValidateFaxNumber() {
-            if ((this.FaxNumber == "999-999-9999") || (this.FaxNumber == "888-888-8888"))
-            {
-                this.IsValid = false;
+            if ((FaxNumber == "999-999-9999") || (FaxNumber == "888-888-8888")) {
+                IsValid = false;
             }
         }
     }

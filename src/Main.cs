@@ -84,21 +84,17 @@ namespace TDriver {
                 notifyIcon1.BalloonTipTitle = "T: Driver";
                 notifyIcon1.BalloonTipText = "Minimized to traybar.";
                 notifyIcon1.ShowBalloonTip(50);
-                ShowInTaskbar = false;
-                Hide();
+                //ShowInTaskbar = false;
             }
 
             else if (FormWindowState.Normal == WindowState) {
-                ShowInTaskbar = true;
+                //ShowInTaskbar = true;
             }
         }
 
         private void notifyIcon1_DoubleClick(object sender, EventArgs e) {
             // Show the form when the user double clicks on the notify icon. 
-
-            // Set the WindowState to normal if the form is minimized. 
-            if (WindowState == FormWindowState.Minimized)
-                WindowState = FormWindowState.Normal;
+                this.WindowState = FormWindowState.Normal;
 
             // Focus the form.
             Activate();
@@ -121,9 +117,6 @@ namespace TDriver {
         {
 
         }
-
-
-
 
     }
 }

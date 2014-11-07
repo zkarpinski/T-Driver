@@ -31,8 +31,9 @@ namespace TDriver {
     internal class Settings {
         public readonly String ErrorFile;
         public readonly String LogFile;
+        public readonly int FileDelayTime;
         private readonly IniData _iniData;
-        public const short MaxWatchlistSize = 10; //Max Size Of WatchList
+        public const short MaxWatchlistSize = 10; //Maximum number of folders to add to WatchList
         public readonly List<DPAType> WatchList;
 
 
@@ -43,12 +44,24 @@ namespace TDriver {
                 _iniData = iniFileParser.ReadFile(settingsIni);
                 LogFile = _iniData["General"]["LogFile"];
                 ErrorFile = _iniData["General"]["ErrorFile"];
+                //File delay setting added to compensate for duplicate file bug.
+                try {
+                    FileDelayTime = Convert.ToInt32(_iniData["General"]["FileDelayTime"]);
+                }
+                    //String in field
+                catch (FormatException) {
+                    FileDelayTime = 10000; //Set delay time to default 10seconds.
+                }
+                catch (OverflowException ) {
+                    FileDelayTime = 10000; //Set delay time to default 10seconds.
+                }
+                
                 WatchList = new List<DPAType>(MaxWatchlistSize);
                 SetupWatchLists();
             }
             else {
                 CreateSettingsTemplate(settingsIni);
-                //ADD Alert
+                //TODO ADD Alert
             }
         }
 

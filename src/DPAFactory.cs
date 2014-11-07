@@ -8,7 +8,7 @@ namespace TDriver {
     /// </summary>
     /// <remarks>
     ///     Valid File Names:
-    ///     DPA-99999-99999-FaxTo-999-999-9999-To-NAME_HERE.doc                    (Medical Fax Document)
+    ///     Acct-99999-99999-To-999-999-9999-To-NAME_HERE.doc                       (Medical Fax Document)
     ///     DPA-99999-99999.doc                                                     (Email or Mail or Fax Document)
     ///     DPA-99999-99999-For-NAME_HERE-FaxTo-1-999-999-9999-ATTN-NAME_HERE.doc   (Fax Document)
     ///     DPA-99999-99999-For-NAME_HERE-FaxTo-1-999-999-9999                      (Fax Document)

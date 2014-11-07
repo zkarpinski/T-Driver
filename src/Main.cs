@@ -54,7 +54,7 @@ namespace TDriver {
                 //Queue Existing Files in the folder
                 _dpaWorkQueue.QueueDirectory(dpaType.WatchFolder, dpaType);
                 //Setup watcher for the folder.
-                _folderWatchList.Add(new Watcher(dpaType.WatchFolder, dpaType, ref _dpaWorkQueue));
+                _folderWatchList.Add(new Watcher(dpaType.WatchFolder, dpaType, ref _dpaWorkQueue, _settings.FileDelayTime));
                 //TODO Update UI with folders being watched.
             }
             tbtnStop.Enabled = true;

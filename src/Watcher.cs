@@ -6,6 +6,7 @@ using System.Timers;
 namespace TDriver {
     public class Watcher {
         private static WorkQueue _dpaWorkQueue;
+        private static int _fileDelay;
 
         /// <summary>
         ///     Create a new watcher for every folder we want to monitor.
@@ -13,8 +14,10 @@ namespace TDriver {
         /// <param name="sPath">Folder to monitor.</param>
         /// <param name="folderDPAType">DPAType the folder is..</param>
         /// <param name="workQueue">Queue for worked to be added to.</param>
-        public Watcher(string sPath, DPAType folderDPAType, ref WorkQueue workQueue) {
+        /// <param name="delay">Delay time in milliseconds, </param>
+        public Watcher(string sPath, DPAType folderDPAType, ref WorkQueue workQueue, int delay) {
             try {
+                _fileDelay = delay;
                 _dpaWorkQueue = workQueue;
                 //Check if the directory exists.
                 if (!Directory.Exists(sPath)) {
@@ -43,7 +46,7 @@ namespace TDriver {
             Debug.WriteLine("New File detected!");
             //An artifical wait to handle duplicate file creations bug from our web application.
             //BUG check for resource usage for high volume of undisposed timers.
-            var aTimer = new Timer(10000) {AutoReset = false};
+            var aTimer = new Timer(_fileDelay) {AutoReset = false};
 
             aTimer.Elapsed += (sender, e) => _dpaWorkQueue.FoundFileCheck(file, fileDPAType);
             aTimer.Enabled = true;

@@ -171,7 +171,9 @@
   <ItemGroup>
     <None Include="Resources\Golf-Ball-on-Tee.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="lib\INIFileParser.pdb" />
+  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="lib\INIFileParser.dll" />
   </ItemGroup>

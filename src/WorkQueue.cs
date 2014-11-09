@@ -7,6 +7,7 @@ using System.Threading;
 
 namespace TDriver {
     public sealed class WorkQueue : IDisposable {
+        private WorkListConnection wlConnection;
         /// <summary>
         ///     http://social.msdn.microsoft.com/forums/vstudio/en-US/500cb664-e2ca-4d76-88b9-0faab7e7c443/queuing-backgroundworker-tasks
         /// </summary>
@@ -18,6 +19,10 @@ namespace TDriver {
         private Thread _queueWorker;
 
         private Boolean _quitWork;
+
+        public WorkQueue(string databaseFile) {
+            wlConnection = new WorkListConnection(databaseFile);
+        }
 
         public void Dispose() {
             Dispose(true);
@@ -115,6 +120,7 @@ namespace TDriver {
                     if (dequeuedWork != null) {
                         Debug.WriteLine("Working");
                         if (dequeuedWork.Process()) {
+                            wlConnection.Add(ref dequeuedWork);
                             dequeuedWork.Move();
                             dequeuedWork.Completed = true;
                             Debug.WriteLine(dequeuedWork.GetType() + " Completed!");

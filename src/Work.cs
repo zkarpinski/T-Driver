@@ -14,8 +14,9 @@ namespace TDriver {
         }
 
         public string KindOfDPA { get; protected set; }
-        public string MoveLocation { get; protected set; }
+        protected string MoveLocation { private get; set; }
         public string DPAFile { get; protected set; }
+        public abstract DPA DPAObject { get; }
 
         public bool Move() {
             string fileName = Path.GetFileName(DPAFile);

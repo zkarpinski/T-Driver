@@ -30,6 +30,8 @@ A tool designed to automate the T: Drive with functions such as faxing, emailing
 * [.Net Framework v4.0](http://www.microsoft.com/en-us/download/details.aspx?id=17851)
 * RightFax RFCOMAPI.dll
 * [Office 2003 Update: Redistributable Primary Interop](http://support.microsoft.com/kb/897646)
+* [Ini File Parser] (https://github.com/rickyah/ini-parser)
+
 
 ##Coming Soon...
  * Email support.

@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 
 namespace TDriver {
     public class Fax : DPA {
+        public string FaxNumber { get { return SendTo; } }
+
         /// <summary>
         ///     Fax constructor from DPAFactory.
         /// </summary>
@@ -13,7 +16,7 @@ namespace TDriver {
         public Fax(String document, String faxNumber, String accountNumber) {
             Account = accountNumber;
             SharedConstructs(document);
-            FaxNumber = faxNumber;
+            SendTo = faxNumber;
             ValidateFaxNumber();
         }
 
@@ -24,16 +27,17 @@ namespace TDriver {
         public Fax(String document) {
             SharedConstructs(document);
             Account = RegexFileName(@"\d{5}-\d{5}");
-            FaxNumber = RegexFileName(@"\d{3}-\d{3}-\d{4}"); //Regex without US code
+            SendTo = RegexFileName(@"\d{3}-\d{3}-\d{4}"); //Regex without US code
             ValidateFaxNumber();
         }
 
-        public string FaxNumber { get; private set; }
+
 
         private void SharedConstructs(String document) {
             DeliveryMethod = DeliveryMethodTypes.Fax;
             Document = document;
             FileName = Path.GetFileNameWithoutExtension(document);
+            FileCreationTime = RemoveMilliseconds(File.GetCreationTime(document));
             ParseFileName(FileName);
         }
 

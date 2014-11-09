@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
 
 namespace TDriver {
@@ -27,14 +28,17 @@ namespace TDriver {
             Rejected = false;
         }
 
-        public string CustomerName { get; set; }
-        public string Document { get; set; }
-        public string Account { get; set; }
+        public string CustomerName { get; protected set; }
+        public string Document { get; protected set; }
+        public string Account { get; protected set; }
         public string FileName { get; set; }
-        public DeliveryMethodTypes DeliveryMethod { get; set; }
+        public DeliveryMethodTypes DeliveryMethod { get; protected set; }
         public Boolean IsValid { get; set; }
         public Boolean Sent { get; set; }
+        public DateTime TimeSent { get;private set; }
+        public DateTime FileCreationTime { get; protected set; }
         public Boolean Rejected { get; set; }
+        public string SendTo;
 
         protected string RegexFileName(string pattern) {
             var rgx = new Regex(pattern, RegexOptions.IgnoreCase);
@@ -45,5 +49,20 @@ namespace TDriver {
             IsValid = false;
             return "NOT_FOUND";
         }
+
+        public void AddSentTime() {
+            TimeSent = RemoveMilliseconds(DateTime.Now);
+        }
+
+        /// <summary>
+        /// Removes milliseconds from DateTime
+        /// </summary>
+        /// <remarks>http://stackoverflow.com/questions/1004698/how-to-truncate-milliseconds-off-of-a-net-datetime/1004708#1004708</remarks>
+        protected DateTime RemoveMilliseconds(DateTime date) { 
+            date = new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second);
+            return date;
+
+        }
+
     }
 }

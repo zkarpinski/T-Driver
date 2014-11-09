@@ -13,6 +13,10 @@ namespace TDriver {
             KindOfDPA = typeOfDPA.Name;
         }
 
+        public override DPA DPAObject {
+            get { throw new NotImplementedException(); }
+        }
+
         public override bool Process() {
             throw new NotImplementedException();
         }

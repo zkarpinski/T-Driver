@@ -7,11 +7,12 @@ namespace TDriver {
         private readonly string _comment;
         private readonly string _server;
         private readonly string _userId;
-        public readonly Fax fax;
+        private readonly Fax _fax;
 
+        public override DPA DPAObject { get { return _fax; } }
 
         public FaxWork(Fax fFax, DPAType typeOfDPA) {
-            fax = fFax;
+            _fax = fFax;
             _userId = typeOfDPA.UserId;
             _server = typeOfDPA.Server;
             _comment = typeOfDPA.FaxComment;
@@ -23,6 +24,7 @@ namespace TDriver {
         public override Boolean Process() {
 #if DEBUG
             //Debug result :: Faxing Success.
+            _fax.AddSentTime();
             return true;
 #else
             //Release:: Fax Process
@@ -35,6 +37,7 @@ namespace TDriver {
                 if (fax.IsValid) {
                     RFCOMAPILib.Fax newFax = CreateRightFax_Fax(faxsvr);
                     newFax.Send();
+                    _fax.AddSentTime();
                     // TODO move the fax, within RightFax, to the sent folder.
                     // newFax.MoveToFolder
                 }
@@ -73,9 +76,9 @@ namespace TDriver {
         /// <returns></returns>
         private RFCOMAPILib.Fax CreateRightFax_Fax(FaxServer faxsvr) {
             var newFax = (RFCOMAPILib.Fax) faxsvr.CreateObject[CreateObjectType.coFax];
-            newFax.ToName = fax.CustomerName;
-            newFax.ToFaxNumber = "1" + Regex.Replace(fax.FaxNumber, "-", ""); //Add US Code (1)
-            newFax.Attachments.Add(fax.Document);
+            newFax.ToName = DPAObject.CustomerName;
+            newFax.ToFaxNumber = "1" + Regex.Replace(_fax.FaxNumber, "-", ""); //Add US Code (1)
+            newFax.Attachments.Add(DPAObject.Document);
             newFax.UserComments = _comment;
             return newFax;
         }

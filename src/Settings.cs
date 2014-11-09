@@ -29,11 +29,12 @@ namespace TDriver {
 
 
     internal class Settings {
-        public readonly String ErrorFile;
-        public readonly String LogFile;
-        public readonly int FileDelayTime;
+        public readonly String ErrorLogfile;
+        public readonly String DatabaseFile;
+        public readonly Int16 FileDelayTime;
         private readonly IniData _iniData;
-        public const short MaxWatchlistSize = 10; //Maximum number of folders to add to WatchList
+        public const short MAX_WATCHLIST_SIZE = 10; //Maximum number of folders to add to WatchList
+        private const short MIN_FILE_DELAY_TIME = 1;
         public readonly List<DPAType> WatchList;
 
 
@@ -42,21 +43,24 @@ namespace TDriver {
                 var iniFileParser = new FileIniDataParser();
                 iniFileParser.Parser.Configuration.CommentString = "#";
                 _iniData = iniFileParser.ReadFile(settingsIni);
-                LogFile = _iniData["General"]["LogFile"];
-                ErrorFile = _iniData["General"]["ErrorFile"];
+                DatabaseFile = _iniData["General"]["Database"];
+                ErrorLogfile = _iniData["General"]["ErrorFile"];
                 //File delay setting added to compensate for duplicate file bug.
                 try {
-                    FileDelayTime = Convert.ToInt32(_iniData["General"]["FileDelayTime"]);
+                    FileDelayTime = Convert.ToInt16(_iniData["General"]["FileDelayTime"]);
+                    if (FileDelayTime < MIN_FILE_DELAY_TIME) {
+                        FileDelayTime = MIN_FILE_DELAY_TIME;
+                    }
                 }
                     //String in field
                 catch (FormatException) {
-                    FileDelayTime = 10000; //Set delay time to default 10seconds.
+                    FileDelayTime = 10; //Set delay time to default 1seconds.
                 }
                 catch (OverflowException ) {
-                    FileDelayTime = 10000; //Set delay time to default 10seconds.
+                    FileDelayTime = 10; //Set delay time to default 1seconds.
                 }
                 
-                WatchList = new List<DPAType>(MaxWatchlistSize);
+                WatchList = new List<DPAType>(MAX_WATCHLIST_SIZE);
                 SetupWatchLists();
             }
             else {

@@ -45,8 +45,9 @@ namespace TDriver {
         private static void NewFileCreated(string file, DPAType fileDPAType) {
             Debug.WriteLine("New File detected!");
             //An artifical wait to handle duplicate file creations bug from our web application.
+            // Multiple FileDelay by 1000 to get milliseconds.
             //BUG check for resource usage for high volume of undisposed timers.
-            var aTimer = new Timer(_fileDelay) {AutoReset = false};
+            var aTimer = new Timer(_fileDelay*1000) {AutoReset = false};
 
             aTimer.Elapsed += (sender, e) => _dpaWorkQueue.FoundFileCheck(file, fileDPAType);
             aTimer.Enabled = true;

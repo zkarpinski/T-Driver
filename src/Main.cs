@@ -44,8 +44,8 @@ namespace TDriver {
         private void tsBtnStart_Click(object sender, EventArgs e) {
             //Start the watcher
             tbtnStart.Enabled = false;
-            _dpaWorkQueue = new WorkQueue();
-            _folderWatchList = new List<Watcher>(Settings.MaxWatchlistSize);
+            _dpaWorkQueue = new WorkQueue(_settings.DatabaseFile);
+            _folderWatchList = new List<Watcher>(Settings.MAX_WATCHLIST_SIZE);
             Debug.WriteLine("Poll requested.");
 
             _dpaWorkQueue.StartQWorker();

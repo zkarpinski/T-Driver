@@ -112,7 +112,7 @@ namespace TDriver {
                     lock (_zLock) {
                         if (_workQueue.Count > 0) {
                             dequeuedWork = _workQueue.Dequeue();
-                            Debug.WriteLine(dequeuedWork.GetType() + " Found: " + dequeuedWork.DPAFile);
+                            Debug.WriteLine(dequeuedWork.GetType() + " Found: " + dequeuedWork.DPAObject.Document);
                         }
                     }
 
@@ -126,6 +126,8 @@ namespace TDriver {
                             Debug.WriteLine(dequeuedWork.GetType() + " Completed!");
                         }
                         else {
+                            //TODO Remove this during deployment!!
+                            wlConnection.Add(ref dequeuedWork);
                             Debug.WriteLine(dequeuedWork.GetType() + " Failed!");
                         }
                     }

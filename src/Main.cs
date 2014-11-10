@@ -107,13 +107,18 @@ namespace TDriver {
             this.Close();
         }
 
-        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e) {
+            Form about = new About();
+            about.Show();
         }
         #endregion
 
         private void Main_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void toolStripStatusLabel1_Click(object sender, EventArgs e)
         {
 
         }

@@ -31,6 +31,18 @@ namespace TDriver {
             ValidateFaxNumber();
         }
 
+        public Fax(DPA baseDPA, string faxNumber) {
+            this.SendTo = faxNumber;
+            DeliveryMethod = DeliveryMethodTypes.Fax;
+            this.Account = baseDPA.Account;
+            this.Document = baseDPA.Document;
+            this.CustomerName = baseDPA.CustomerName;
+            this.FileName = baseDPA.FileName;
+            this.FileCreationTime = baseDPA.FileCreationTime;
+            this.FileName = Path.GetFileNameWithoutExtension(this.Document);
+            this.FileCreationTime = RemoveMilliseconds(File.GetCreationTime(this.Document));
+            ValidateFaxNumber();
+        }
 
 
         private void SharedConstructs(String document) {

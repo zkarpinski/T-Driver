@@ -18,11 +18,10 @@ namespace TDriver {
             _comment = typeOfDPA.FaxComment;
             MoveLocation = typeOfDPA.MoveFolder;
             KindOfDPA = typeOfDPA.Name;
-            DPAFile = fFax.Document;
         }
 
         public override Boolean Process() {
-#if DEBUG
+#if DEBUG//Allow simulating faxing, outside of production system.
             //Debug result :: Faxing Success.
             _fax.AddSentTime();
             return true;
@@ -34,7 +33,7 @@ namespace TDriver {
                 faxsvr.OpenServer();
 
                 //Create the fax and send.
-                if (fax.IsValid) {
+                if (_fax.IsValid) {
                     RFCOMAPILib.Fax newFax = CreateRightFax_Fax(faxsvr);
                     newFax.Send();
                     _fax.AddSentTime();
@@ -77,7 +76,7 @@ namespace TDriver {
         private RFCOMAPILib.Fax CreateRightFax_Fax(FaxServer faxsvr) {
             var newFax = (RFCOMAPILib.Fax) faxsvr.CreateObject[CreateObjectType.coFax];
             newFax.ToName = DPAObject.CustomerName;
-            newFax.ToFaxNumber = "1" + Regex.Replace(_fax.FaxNumber, "-", ""); //Add US Code (1)
+            newFax.ToFaxNumber = "1" + _fax.FaxNumber.Replace("-", ""); //Add US Code (1)
             newFax.Attachments.Add(DPAObject.Document);
             newFax.UserComments = _comment;
             return newFax;

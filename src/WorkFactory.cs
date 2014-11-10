@@ -10,11 +10,9 @@
             if (!dpa.IsValid) return null;
             switch (dpa.DeliveryMethod) {
                 case DPA.DeliveryMethodTypes.Fax: //Fax
-                    var work = new FaxWork((Fax) dpa, dpaType);
-                    return work;
+                    return new FaxWork((Fax)dpa, dpaType);
                 case DPA.DeliveryMethodTypes.Email: //Email
-                    //TODO add Email work
-                    return null;
+                    return new EmailWork((Email)dpa, dpaType);
                 case DPA.DeliveryMethodTypes.Mail: //Mail
                     //TODO add Mail work
                     return null;

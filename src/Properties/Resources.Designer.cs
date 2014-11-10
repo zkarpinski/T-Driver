@@ -61,6 +61,16 @@ namespace TDriver.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] DCSoft_RTF {
+            get {
+                object obj = ResourceManager.GetObject("DCSoft_RTF", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
         internal static System.Drawing.Icon Golf_Ball_on_Tee {

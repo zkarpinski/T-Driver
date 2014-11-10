@@ -28,17 +28,35 @@ namespace TDriver {
             Rejected = false;
         }
 
+        /// <summary>
+        /// Constructer used for Parser to return a base DPA.
+        /// </summary>
+        /// <param name="accountNumber"></param>
+        /// <param name="sendTo"></param>
+        /// <param name="customer"></param>
+        /// <param name="premiseAddress"></param>
+        /// <param name="dateOffered"></param>
+        /// <param name="document"></param>
+        public DPA(string accountNumber, string sendTo, string customer, string premiseAddress, string dateOffered, string document) {
+            Account = RegexAccount(accountNumber);
+            SendTo = sendTo;
+            CustomerName = customer.Replace("Customer Name ", "").ToUpper();
+            Document = document;
+        }
+
+        public string SendTo;
         public string CustomerName { get; protected set; }
         public string Document { get; protected set; }
         public string Account { get; protected set; }
-        public string FileName { get; set; }
+        public string ServiceAddress { get; protected set; }
+        public string FileName { get; protected set; }
         public DeliveryMethodTypes DeliveryMethod { get; protected set; }
-        public Boolean IsValid { get; set; }
-        public Boolean Sent { get; set; }
         public DateTime TimeSent { get;private set; }
         public DateTime FileCreationTime { get; protected set; }
+
+        public Boolean IsValid { get; set; }
+        public Boolean Sent { get; set; }
         public Boolean Rejected { get; set; }
-        public string SendTo;
 
         protected string RegexFileName(string pattern) {
             var rgx = new Regex(pattern, RegexOptions.IgnoreCase);
@@ -48,6 +66,19 @@ namespace TDriver {
             }
             IsValid = false;
             return "NOT_FOUND";
+        }
+
+        protected string RegexAccount(string strAccount)
+        {
+            const string rgxAccountPattern = @"\d{5}-\d{5}";
+            var rgx = new Regex(rgxAccountPattern, RegexOptions.IgnoreCase);
+            MatchCollection matches = rgx.Matches(strAccount);
+            if (matches.Count > 0)
+            {
+                return matches[0].Value;
+            }
+            IsValid = false;
+            return null;
         }
 
         public void AddSentTime() {

@@ -15,11 +15,11 @@ namespace TDriver {
 
         public string KindOfDPA { get; protected set; }
         protected string MoveLocation { private get; set; }
-        public string DPAFile { get; protected set; }
         public abstract DPA DPAObject { get; }
 
         public bool Move() {
-            string fileName = Path.GetFileName(DPAFile);
+            string dpaFile = this.DPAObject.Document;
+            string fileName = Path.GetFileName(dpaFile);
             if (fileName == null) return false;
             string saveAs = Path.Combine(MoveLocation, fileName);
 
@@ -29,10 +29,11 @@ namespace TDriver {
                 File.Delete(saveAs);
             }
             try {
-                File.Move(DPAFile, saveAs);
+                File.Move(dpaFile, saveAs);
                 return true;
             }
             catch (Exception) {
+                //Todo add notifcation or error log.
                 return false;
             }
         }

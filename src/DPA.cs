@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
 
 namespace TDriver {
@@ -12,6 +11,8 @@ namespace TDriver {
             Email = 2,
             Mail = 3,
         }
+
+        public string SendTo;
 
         protected DPA(String document) {
             IsValid = true;
@@ -29,7 +30,7 @@ namespace TDriver {
         }
 
         /// <summary>
-        /// Constructer used for Parser to return a base DPA.
+        ///     Constructer used for Parser to return a base DPA.
         /// </summary>
         /// <param name="accountNumber"></param>
         /// <param name="sendTo"></param>
@@ -37,21 +38,21 @@ namespace TDriver {
         /// <param name="premiseAddress"></param>
         /// <param name="dateOffered"></param>
         /// <param name="document"></param>
-        public DPA(string accountNumber, string sendTo, string customer, string premiseAddress, string dateOffered, string document) {
+        public DPA(string accountNumber, string sendTo, string customer, string premiseAddress, string dateOffered,
+            string document) {
             Account = RegexAccount(accountNumber);
             SendTo = sendTo;
             CustomerName = customer.Replace("Customer Name ", "").ToUpper();
             Document = document;
         }
 
-        public string SendTo;
         public string CustomerName { get; protected set; }
         public string Document { get; protected set; }
         public string Account { get; protected set; }
         public string ServiceAddress { get; protected set; }
         public string FileName { get; protected set; }
         public DeliveryMethodTypes DeliveryMethod { get; protected set; }
-        public DateTime TimeSent { get;private set; }
+        public DateTime TimeSent { get; private set; }
         public DateTime FileCreationTime { get; protected set; }
 
         public Boolean IsValid { get; set; }
@@ -68,13 +69,11 @@ namespace TDriver {
             return "NOT_FOUND";
         }
 
-        protected string RegexAccount(string strAccount)
-        {
+        protected string RegexAccount(string strAccount) {
             const string rgxAccountPattern = @"\d{5}-\d{5}";
             var rgx = new Regex(rgxAccountPattern, RegexOptions.IgnoreCase);
             MatchCollection matches = rgx.Matches(strAccount);
-            if (matches.Count > 0)
-            {
+            if (matches.Count > 0) {
                 return matches[0].Value;
             }
             IsValid = false;
@@ -86,14 +85,12 @@ namespace TDriver {
         }
 
         /// <summary>
-        /// Removes milliseconds from DateTime
+        ///     Removes milliseconds from DateTime
         /// </summary>
         /// <remarks>http://stackoverflow.com/questions/1004698/how-to-truncate-milliseconds-off-of-a-net-datetime/1004708#1004708</remarks>
-        protected DateTime RemoveMilliseconds(DateTime date) { 
+        protected DateTime RemoveMilliseconds(DateTime date) {
             date = new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second);
             return date;
-
         }
-
     }
 }

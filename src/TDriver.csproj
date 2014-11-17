@@ -91,6 +91,8 @@
     <Compile Include="Fax.cs" />
     <Compile Include="FaxWork.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="Mail.cs" />
+    <Compile Include="MailWork.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>

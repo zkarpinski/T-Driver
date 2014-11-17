@@ -24,7 +24,6 @@ namespace TDriver {
             File.AppendAllText(csvFile, logAction);
         }
 
-
         public void LogFax(String logFile, ref Fax fax, string userId) {
             DateTime logTime = DateTime.Now;
 

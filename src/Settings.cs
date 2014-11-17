@@ -6,6 +6,7 @@ using IniParser.Model;
 
 namespace TDriver {
     public struct DPAType {
+        public readonly string FaxComment;
         public readonly string MoveFolder;
         public readonly string Name;
         public readonly string Password;
@@ -13,7 +14,6 @@ namespace TDriver {
         public readonly string Server;
         public readonly string UserId;
         public readonly string WatchFolder;
-        public readonly string FaxComment;
 
         public DPAType(SectionData section) {
             Name = section.SectionName;
@@ -29,13 +29,13 @@ namespace TDriver {
 
 
     internal class Settings {
-        public readonly String ErrorLogfile;
-        public readonly String DatabaseFile;
-        public readonly Int16 FileDelayTime;
-        private readonly IniData _iniData;
         public const short MAX_WATCHLIST_SIZE = 10; //Maximum number of folders to add to WatchList
         private const short MIN_FILE_DELAY_TIME = 1;
+        public readonly String DatabaseFile;
+        public readonly String ErrorLogfile;
+        public readonly Int16 FileDelayTime;
         public readonly List<DPAType> WatchList;
+        private readonly IniData _iniData;
 
 
         public Settings(String settingsIni) {
@@ -54,12 +54,12 @@ namespace TDriver {
                 }
                     //String in field
                 catch (FormatException) {
-                    FileDelayTime = 10; //Set delay time to default 1seconds.
+                    FileDelayTime = 10; //Set delay time to default 10seconds.
                 }
-                catch (OverflowException ) {
-                    FileDelayTime = 10; //Set delay time to default 1seconds.
+                catch (OverflowException) {
+                    FileDelayTime = 10; //Set delay time to default 10seconds.
                 }
-                
+
                 WatchList = new List<DPAType>(MAX_WATCHLIST_SIZE);
                 SetupWatchLists();
             }

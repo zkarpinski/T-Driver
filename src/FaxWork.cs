@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Text.RegularExpressions;
 using RFCOMAPILib;
 
 namespace TDriver {
     public class FaxWork : Work {
         private readonly string _comment;
+        private readonly Fax _fax;
         private readonly string _server;
         private readonly string _userId;
-        private readonly Fax _fax;
-
-        public override DPA DPAObject { get { return _fax; } }
 
         public FaxWork(Fax fFax, DPAType typeOfDPA) {
             _fax = fFax;
@@ -20,13 +17,17 @@ namespace TDriver {
             KindOfDPA = typeOfDPA.Name;
         }
 
+        public override DPA DPAObject {
+            get { return _fax; }
+        }
+
         public override Boolean Process() {
-#if DEBUG//Allow simulating faxing, outside of production system.
+#if DEBUG //Allow simulating faxing, outside of production system.
             //Debug result :: Faxing Success.
             _fax.AddSentTime();
             return true;
 #else
-            //Release:: Fax Process
+    //Release:: Fax Process
             try {
                 //Setup Rightfax Server Connection
                 FaxServer faxsvr = SetupRightFaxServer();

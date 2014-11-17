@@ -27,12 +27,11 @@ namespace TDriver {
                 return new Fax(file, faxNumber, accountNumber);
             }
 
-            //TODO Check for email/mail/fax by opening with RTF parser
-
-
+            //Open document with RTF Parser and parse the table.
             DPA placeHolder = parser.FindData(file);
             if (placeHolder == null) return null;
 
+            //Determine the delivery method by analyzing the "SendTo" field's contents.
             Tuple<DPA.DeliveryMethodTypes, string> result = DetermineDeliveryMethod(placeHolder.SendTo);
             if (result == null) return null;
 
@@ -43,22 +42,10 @@ namespace TDriver {
                 case DPA.DeliveryMethodTypes.Fax:
                     return new Fax(placeHolder, result.Item2);
                 case DPA.DeliveryMethodTypes.Mail:
-                    //return new Mail();
-                    return null;
-                    break;
-                case DPA.DeliveryMethodTypes.Err:
+                    return new Mail(placeHolder, result.Item2);
                 default:
                     return null;
-                    
             }
-#if DEBUG //TESTING CODE
-            //Create Word Object
-            //Check if Email @
-            //return new Email(file);
-            //Check if Address City NY 11111
-
-            //Check again for fax number
-#endif
         }
 
         private static string RegexFileName(string pattern, string fileName) {
@@ -73,18 +60,27 @@ namespace TDriver {
         /// <param name="sendToField"></param>
         /// <returns></returns>
         private static Tuple<DPA.DeliveryMethodTypes, string> DetermineDeliveryMethod(string sendToField) {
+            //Check for email address.
             const String rgxEmailPattern =
                 @"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?";
-            const String rgxFaxPattern = @"\d{3}-\d{3}-\d{4}";
-
-            //Check for email address.
             var rgx = new Regex(rgxEmailPattern, RegexOptions.IgnoreCase);
             MatchCollection emailMatches = rgx.Matches(sendToField);
             if (emailMatches.Count == 1) {
                 return Tuple.Create(DPA.DeliveryMethodTypes.Email, emailMatches[0].Value);
             }
 
+            //Check for mail address.
+            //Look for space, two letters, space then 5 digits
+            //ex. ' NY 13219'
+            const String rgxAddressPattern = @"\s[a-z]{2}\s\d{5}";
+            rgx = new Regex(rgxAddressPattern, RegexOptions.IgnoreCase);
+            MatchCollection mailMatches = rgx.Matches(sendToField);
+            if (mailMatches.Count == 1) {
+                return Tuple.Create(DPA.DeliveryMethodTypes.Mail, sendToField);
+            }
+
             //Check for fax number
+            const String rgxFaxPattern = @"\d{3}-\d{3}-\d{4}";
             rgx = new Regex(rgxFaxPattern, RegexOptions.IgnoreCase);
             MatchCollection faxMatches = rgx.Matches(sendToField);
             if (faxMatches.Count == 1) {

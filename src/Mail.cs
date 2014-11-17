@@ -2,31 +2,30 @@
 using System.IO;
 
 namespace TDriver {
-    //TODO Design email DPA
-    public class Email : DPA {
+    public class Mail : DPA {
         /// <summary>
-        ///     Email constructor from DPAFactory.
+        ///     Mail constructor from DPAFactory.
         /// </summary>
         /// <param name="document"></param>
-        /// <param name="emailAddress"></param>
+        /// <param name="mailingAddress"></param>
         /// <param name="accountNumber"></param>
-        public Email(String document, String emailAddress, String accountNumber) {
+        public Mail(String document, String mailingAddress, String accountNumber) {
             DeliveryMethod = DeliveryMethodTypes.Email;
             Document = document;
             FileName = Path.GetFileNameWithoutExtension(document);
-            SendTo = emailAddress;
+            SendTo = mailingAddress;
             Account = accountNumber;
         }
 
 
         /// <summary>
-        ///     Email constructor where data is parsed from a DPA base object.
+        ///     Mail constructor; where data is parsed from the DPA base object.
         /// </summary>
         /// <param name="baseDPA"></param>
-        /// <param name="emailAddress"></param>
-        public Email(DPA baseDPA, string emailAddress) {
-            SendTo = emailAddress;
-            DeliveryMethod = DeliveryMethodTypes.Email;
+        /// <param name="mailingAddress"></param>
+        public Mail(DPA baseDPA, String mailingAddress) {
+            SendTo = CleanMailingAddress(mailingAddress);
+            DeliveryMethod = DeliveryMethodTypes.Mail;
             Account = baseDPA.Account;
             Document = baseDPA.Document;
             CustomerName = baseDPA.CustomerName;
@@ -36,8 +35,16 @@ namespace TDriver {
             FileCreationTime = RemoveMilliseconds(File.GetCreationTime(Document));
         }
 
-        public string EmailAddress {
+        public string MailingAddress {
             get { return SendTo; }
+        }
+
+        private string CleanMailingAddress(String mailingAddress) {
+            string[] junkToRemove = {"Email to:", "Mail to:", "Fax to:"};
+            foreach (string s in junkToRemove) {
+                mailingAddress = mailingAddress.Replace(s, "");
+            }
+            return (mailingAddress.Trim());
         }
     }
 }

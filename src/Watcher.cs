@@ -5,8 +5,9 @@ using System.Timers;
 
 namespace TDriver {
     public class Watcher {
-        private static WorkQueue _dpaWorkQueue;
-        private static int _fileDelay;
+        private readonly WorkQueue _dpaWorkQueue;
+        private readonly int _fileDelay;
+        private readonly FileSystemWatcher _watcher;
 
         /// <summary>
         ///     Create a new watcher for every folder we want to monitor.
@@ -26,11 +27,11 @@ namespace TDriver {
                 }
 
                 // Watch the directory for new word documents.
-                var fsw = new FileSystemWatcher(sPath, "*.doc") {
+                _watcher = new FileSystemWatcher(sPath, "*.doc") {
                     NotifyFilter = NotifyFilters.FileName
                 };
-                fsw.Created += (sender, e) => NewFileCreated(e.FullPath, folderDPAType);
-                fsw.EnableRaisingEvents = true;
+                _watcher.Created += (sender, e) => NewFileCreated(e.FullPath, folderDPAType);
+                _watcher.EnableRaisingEvents = true;
             }
             catch (Exception ex) {
                 Debug.WriteLine(ex.Message);
@@ -42,15 +43,27 @@ namespace TDriver {
         /// </summary>
         /// <param name="file"></param>
         /// <param name="fileDPAType"></param>
-        private static void NewFileCreated(string file, DPAType fileDPAType) {
+        private void NewFileCreated(string file, DPAType fileDPAType) {
             Debug.WriteLine("New File detected!");
             //An artifical wait to handle duplicate file creations bug from our web application.
             // Multiple FileDelay by 1000 to get milliseconds.
             //BUG check for resource usage for high volume of undisposed timers.
-            var aTimer = new Timer(_fileDelay*1000) {AutoReset = false};
+            var aTimer = new Timer((double) _fileDelay*1000) {AutoReset = false};
 
             aTimer.Elapsed += (sender, e) => _dpaWorkQueue.FoundFileCheck(file, fileDPAType);
             aTimer.Enabled = true;
+        }
+
+        public void Stop() {
+            _watcher.EnableRaisingEvents = false;
+        }
+
+        public void Restart() {
+            _watcher.EnableRaisingEvents = true;
+        }
+
+        public void Dispose() {
+            _watcher.Dispose();
         }
     }
 }

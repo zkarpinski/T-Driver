@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 
 namespace TDriver {
     public class Fax : DPA {
-        public string FaxNumber { get { return SendTo; } }
-
         /// <summary>
         ///     Fax constructor from DPAFactory.
         /// </summary>
@@ -32,16 +29,20 @@ namespace TDriver {
         }
 
         public Fax(DPA baseDPA, string faxNumber) {
-            this.SendTo = faxNumber;
+            SendTo = faxNumber;
             DeliveryMethod = DeliveryMethodTypes.Fax;
-            this.Account = baseDPA.Account;
-            this.Document = baseDPA.Document;
-            this.CustomerName = baseDPA.CustomerName;
-            this.FileName = baseDPA.FileName;
-            this.FileCreationTime = baseDPA.FileCreationTime;
-            this.FileName = Path.GetFileNameWithoutExtension(this.Document);
-            this.FileCreationTime = RemoveMilliseconds(File.GetCreationTime(this.Document));
+            Account = baseDPA.Account;
+            Document = baseDPA.Document;
+            CustomerName = baseDPA.CustomerName;
+            FileName = baseDPA.FileName;
+            FileCreationTime = baseDPA.FileCreationTime;
+            FileName = Path.GetFileNameWithoutExtension(Document);
+            FileCreationTime = RemoveMilliseconds(File.GetCreationTime(Document));
             ValidateFaxNumber();
+        }
+
+        public string FaxNumber {
+            get { return SendTo; }
         }
 
 

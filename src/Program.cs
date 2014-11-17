@@ -6,7 +6,6 @@ using System.Windows.Forms;
 
 namespace TDriver {
     internal static class Program {
-
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
@@ -36,7 +35,5 @@ namespace TDriver {
                 }
             }
         }
-
-
     }
 }

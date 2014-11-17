@@ -7,7 +7,6 @@ using System.Threading;
 
 namespace TDriver {
     public sealed class WorkQueue : IDisposable {
-        private WorkListConnection wlConnection;
         /// <summary>
         ///     http://social.msdn.microsoft.com/forums/vstudio/en-US/500cb664-e2ca-4d76-88b9-0faab7e7c443/queuing-backgroundworker-tasks
         /// </summary>
@@ -15,6 +14,7 @@ namespace TDriver {
 
         private readonly Queue<Work> _workQueue = new Queue<Work>(50);
         private readonly Object _zLock = new object();
+        private readonly WorkListConnection wlConnection;
 
         private Thread _queueWorker;
 

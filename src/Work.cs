@@ -18,7 +18,7 @@ namespace TDriver {
         public abstract DPA DPAObject { get; }
 
         public bool Move() {
-            string dpaFile = this.DPAObject.Document;
+            string dpaFile = DPAObject.Document;
             string fileName = Path.GetFileName(dpaFile);
             if (fileName == null) return false;
             string saveAs = Path.Combine(MoveLocation, fileName);

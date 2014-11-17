@@ -45,16 +45,17 @@ namespace TDriver {
             //Start the watcher
             tbtnStart.Enabled = false;
             _dpaWorkQueue = new WorkQueue(_settings.DatabaseFile);
-            _folderWatchList = new List<Watcher>(Settings.MAX_WATCHLIST_SIZE);
-            Debug.WriteLine("Poll requested.");
-
             _dpaWorkQueue.StartQWorker();
+
+            _folderWatchList = new List<Watcher>(Settings.MAX_WATCHLIST_SIZE);
 
             foreach (DPAType dpaType in _settings.WatchList) {
                 //Queue Existing Files in the folder
                 _dpaWorkQueue.QueueDirectory(dpaType.WatchFolder, dpaType);
                 //Setup watcher for the folder.
-                _folderWatchList.Add(new Watcher(dpaType.WatchFolder, dpaType, ref _dpaWorkQueue, _settings.FileDelayTime));
+
+                _folderWatchList.Add(new Watcher(dpaType.WatchFolder, dpaType, ref _dpaWorkQueue,
+                    _settings.FileDelayTime));
                 //TODO Update UI with folders being watched.
             }
             tbtnStop.Enabled = true;
@@ -67,9 +68,16 @@ namespace TDriver {
             // Stops the watchers.
             if (_isPolling) {
                 tbtnStop.Enabled = false;
+                foreach (Watcher watcher in _folderWatchList) {
+                    watcher.Stop();
+                    watcher.Dispose();
+                }
                 _dpaWorkQueue.StopQWorker();
+
+
                 _isPolling = false;
                 _dpaWorkQueue = null;
+                _folderWatchList = null;
                 Debug.WriteLine("Poll haulted.");
                 tslblStatus.Text = "Stopped";
                 tslblStatus.ForeColor = Color.DarkRed;
@@ -94,7 +102,7 @@ namespace TDriver {
 
         private void notifyIcon1_DoubleClick(object sender, EventArgs e) {
             // Show the form when the user double clicks on the notify icon. 
-                this.WindowState = FormWindowState.Normal;
+            WindowState = FormWindowState.Normal;
 
             // Focus the form.
             Activate();
@@ -104,24 +112,20 @@ namespace TDriver {
         }
 
         private void exitMenuItem_Click(object sender, EventArgs e) {
-            this.Close();
+            Close();
         }
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e) {
             Form about = new About();
             about.Show();
         }
+
         #endregion
 
-        private void Main_Load(object sender, EventArgs e)
-        {
-
+        private void Main_Load(object sender, EventArgs e) {
         }
 
-        private void toolStripStatusLabel1_Click(object sender, EventArgs e)
-        {
-
+        private void toolStripStatusLabel1_Click(object sender, EventArgs e) {
         }
-
     }
 }

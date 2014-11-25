@@ -3,7 +3,9 @@ using System.Globalization;
 using System.IO;
 
 namespace TDriver {
-    internal class Logger {
+    internal static class Logger {
+        public static int ErrorCount = 0;
+
         /// <summary>
         ///     Add data to Comma Seperated Values file for data collecting.
         /// </summary>
@@ -11,7 +13,7 @@ namespace TDriver {
         /// <param name="dpaType"></param>
         /// <param name="deliveryMethod"></param>
         /// <param name="accountNumber"></param>
-        public void AddToCSV(String csvFile, String dpaType, String deliveryMethod, String accountNumber) {
+        public static void AddToCSV(String csvFile, String dpaType, String deliveryMethod, String accountNumber) {
             DateTime logTime = DateTime.Now;
 
             if (!File.Exists(csvFile)) {
@@ -24,7 +26,7 @@ namespace TDriver {
             File.AppendAllText(csvFile, logAction);
         }
 
-        public void LogFax(String logFile, ref Fax fax, string userId) {
+        public static void LogFax(String logFile, ref Fax fax, string userId) {
             DateTime logTime = DateTime.Now;
 
             if (!File.Exists(logFile)) {
@@ -41,9 +43,13 @@ namespace TDriver {
         /// <summary>
         ///     Logs an error message.
         /// </summary>
+        /// <param name="logFile"></param>
         /// <param name="message">Error to be logged.</param>
-        public void LogError(String logFile, string message) {
+        public static void AddError(String logFile, string message) {
             DateTime logTime = DateTime.Now;
+
+            //Increase the error count
+            ErrorCount++;
 
             if (!File.Exists(logFile)) {
                 FileStream fs = File.Create(logFile);

@@ -5,26 +5,19 @@ using System.Linq;
 namespace TDriver {
     public class Fax : DPA {
         /// <summary>
-        ///     Fax constructor from DPAFactory.
+        ///     Fax constructor from DPAFactory when filename matches the correct format.
         /// </summary>
         /// <param name="document"></param>
         /// <param name="faxNumber"></param>
         /// <param name="accountNumber"></param>
         public Fax(String document, String faxNumber, String accountNumber) {
             Account = accountNumber;
-            SharedConstructs(document);
+            DeliveryMethod = DeliveryMethodTypes.Fax;
+            Document = document;
+            FileName = Path.GetFileNameWithoutExtension(document);
+            FileCreationTime = RemoveMilliseconds(File.GetCreationTime(document));
+            ParseFileName(FileName);
             SendTo = faxNumber;
-            ValidateFaxNumber();
-        }
-
-        /// <summary>
-        ///     Fax constructor where data is parsed from filename.
-        /// </summary>
-        /// <param name="document"></param>
-        public Fax(String document) {
-            SharedConstructs(document);
-            Account = RegexFileName(@"\d{5}-\d{5}");
-            SendTo = RegexFileName(@"\d{3}-\d{3}-\d{4}"); //Regex without US code
             ValidateFaxNumber();
         }
 
@@ -45,17 +38,6 @@ namespace TDriver {
             get { return SendTo; }
         }
 
-
-        private void SharedConstructs(String document) {
-            DeliveryMethod = DeliveryMethodTypes.Fax;
-            Document = document;
-            FileName = Path.GetFileNameWithoutExtension(document);
-            FileCreationTime = RemoveMilliseconds(File.GetCreationTime(document));
-            ParseFileName(FileName);
-        }
-
-
-        //~Fax() { }
 
         /// <summary>
         ///     Parses the filename to retrieve fax recipient info.
@@ -81,10 +63,10 @@ namespace TDriver {
         ///     Validate the fax number.
         /// </summary>
         /// <remarks>
-        ///     999-999-999 and 888-888-8888 are common numbers used when incorrect form is used.
+        ///     999-999-9999 and 888-888-8888 are common numbers used when incorrect form is used.
         /// </remarks>
         private void ValidateFaxNumber() {
-            if ((FaxNumber == "999-999-9999") || (FaxNumber == "888-888-8888")) {
+            if ((FaxNumber == "999-999-9999") || (FaxNumber == "888-888-8888") || (FaxNumber == "800-000-0000")) {
                 IsValid = false;
             }
         }

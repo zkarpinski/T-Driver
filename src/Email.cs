@@ -2,8 +2,9 @@
 using System.IO;
 
 namespace TDriver {
-    //TODO Design email DPA
     public class Email : DPA {
+        public string FileToSend {get; private set; }
+
         /// <summary>
         ///     Email constructor from DPAFactory.
         /// </summary>
@@ -33,6 +34,7 @@ namespace TDriver {
             FileName = baseDPA.FileName;
             FileCreationTime = baseDPA.FileCreationTime;
             FileName = Path.GetFileNameWithoutExtension(Document);
+            FileToSend = Settings.PdfsPath + @"\" + FileName + @".pdf";
             FileCreationTime = RemoveMilliseconds(File.GetCreationTime(Document));
         }
 

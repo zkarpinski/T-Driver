@@ -23,7 +23,7 @@ namespace TDriver {
             String faxNumber = RegexFileName(@"\d{3}-\d{3}-\d{4}", fileName); //Without US-code
 
             //Check if Fax by standard naming convention.
-            if ((faxNumber != "NOT_FOUND") && (accountNumber != "NOT_FOUND")) {
+            if ((faxNumber != null) && (accountNumber !=  null)) {
                 return new Fax(file, faxNumber, accountNumber);
             }
 
@@ -51,7 +51,7 @@ namespace TDriver {
         private static string RegexFileName(string pattern, string fileName) {
             var rgx = new Regex(pattern, RegexOptions.IgnoreCase);
             MatchCollection matches = rgx.Matches(fileName);
-            return matches.Count == 1 ? matches[0].Value : "NOT_FOUND";
+            return matches.Count == 1 ? matches[0].Value : null;
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace TDriver {
                 return Tuple.Create(DPA.DeliveryMethodTypes.Email, emailMatches[0].Value);
             }
 
-            //Check for mail address.
+            //Check for a mailing address.
             //Look for space, two letters, space then 5 digits
             //ex. ' NY 13219'
             const String rgxAddressPattern = @"\s[a-z]{2}\s\d{5}";

@@ -1,4 +1,5 @@
-﻿using System.Data.OleDb;
+﻿using System;
+using System.Data.OleDb;
 
 namespace TDriver {
     internal class WorkListConnection {
@@ -14,20 +15,26 @@ namespace TDriver {
         }
 
         public bool Add(ref Work work) {
-            _con.Open();
-            using (var cmdInsert = new OleDbCommand(strCommand, _con)) {
-                cmdInsert.Parameters.AddWithValue("@dPAType", work.KindOfDPA);
-                cmdInsert.Parameters.AddWithValue("@delivery", work.DPAObject.DeliveryMethod.ToString());
-                cmdInsert.Parameters.AddWithValue("@account", work.DPAObject.Account);
-                cmdInsert.Parameters.AddWithValue("@sendTo", work.DPAObject.SendTo);
-                cmdInsert.Parameters.AddWithValue("@customerName", work.DPAObject.CustomerName);
-                cmdInsert.Parameters.AddWithValue("@timeSent", work.DPAObject.TimeSent);
-                cmdInsert.Parameters.AddWithValue("@fileCreationTime", work.DPAObject.FileCreationTime);
-                cmdInsert.Parameters.AddWithValue("@document", work.DPAObject.Document);
-                cmdInsert.ExecuteNonQuery();
+            try {
+                _con.Open();
+                using (var cmdInsert = new OleDbCommand(strCommand, _con)) {
+                    cmdInsert.Parameters.AddWithValue("@dPAType", work.KindOfDPA);
+                    cmdInsert.Parameters.AddWithValue("@delivery", work.DPAObject.DeliveryMethod.ToString());
+                    cmdInsert.Parameters.AddWithValue("@account", work.DPAObject.Account);
+                    cmdInsert.Parameters.AddWithValue("@sendTo", work.DPAObject.SendTo);
+                    cmdInsert.Parameters.AddWithValue("@customerName", work.DPAObject.CustomerName);
+                    cmdInsert.Parameters.AddWithValue("@timeSent", work.DPAObject.TimeSent);
+                    cmdInsert.Parameters.AddWithValue("@fileCreationTime", work.DPAObject.FileCreationTime);
+                    cmdInsert.Parameters.AddWithValue("@document", work.DPAObject.Document);
+                    cmdInsert.ExecuteNonQuery();
+                }
+                _con.Close();
+                return true;
             }
-            _con.Close();
-            return true;
+            catch (Exception ex) {
+                Logger.AddError(Settings.ErrorLogfile, ex.Message);
+                return false;
+            }
         }
     }
 }

@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Windows.Forms;
 using IniParser;
 using IniParser.Model;
 
@@ -15,7 +18,20 @@ namespace TDriver {
         public readonly string UserId;
         public readonly string WatchFolder;
 
+
+        //
+        public bool DisableEmail;
+        public bool DisableFax;
+        public bool DisableMail;
+
+
         public DPAType(SectionData section) {
+            //Default Settings
+            DisableEmail = false;
+            DisableFax = false;
+            DisableMail = false;
+
+            const string defaultRightFaxComment = "Sent via T-Driver";
             Name = section.SectionName;
             Server = section.Keys["Server"];
             UserId = section.Keys["User"];
@@ -23,61 +39,75 @@ namespace TDriver {
             WatchFolder = section.Keys["WatchFolder"];
             MoveFolder = section.Keys["MoveFolder"];
             SendEmailFrom = section.Keys["SendEmailFrom"];
-            FaxComment = section.Keys["RightFaxComment"];
+            //FaxComment = section.Keys["RightFaxComment"];
+            FaxComment = defaultRightFaxComment;
         }
     }
 
 
-    internal class Settings {
+    internal static class Settings {
         public const short MAX_WATCHLIST_SIZE = 10; //Maximum number of folders to add to WatchList
         private const short MIN_FILE_DELAY_TIME = 1;
-        public readonly String DatabaseFile;
-        public readonly String ErrorLogfile;
-        public readonly Int16 FileDelayTime;
-        public readonly List<DPAType> WatchList;
-        private readonly IniData _iniData;
 
+        public static String DatabaseFile;
+        public static String ErrorLogfile;
+        public static string EmailMsg;
+        public static string PdfsPath;
+        public static String SmtpServer;
+        public static short EmailPort;
+        public static Int16 FileDelayTime;
+        public static List<DPAType> WatchList;
+        private static IniData _iniData;
 
-        public Settings(String settingsIni) {
-            if (File.Exists(settingsIni)) {
-                var iniFileParser = new FileIniDataParser();
-                iniFileParser.Parser.Configuration.CommentString = "#";
-                _iniData = iniFileParser.ReadFile(settingsIni);
+        public static void Setup(String settingsIni) {
+            var iniFileParser = new FileIniDataParser();
+            iniFileParser.Parser.Configuration.CommentString = "#";
+            _iniData = iniFileParser.ReadFile(settingsIni);
+
+            //Load the general section variables
+            if (!_iniData.Sections.ContainsSection("General"))
+                ShowSettingsFileError("The 'General' section is missing from the settings file.");
+            try {
                 DatabaseFile = _iniData["General"]["Database"];
                 ErrorLogfile = _iniData["General"]["ErrorFile"];
-                //File delay setting added to compensate for duplicate file bug.
-                try {
-                    FileDelayTime = Convert.ToInt16(_iniData["General"]["FileDelayTime"]);
-                    if (FileDelayTime < MIN_FILE_DELAY_TIME) {
-                        FileDelayTime = MIN_FILE_DELAY_TIME;
-                    }
-                }
-                    //String in field
-                catch (FormatException) {
-                    FileDelayTime = 10; //Set delay time to default 10seconds.
-                }
-                catch (OverflowException) {
-                    FileDelayTime = 10; //Set delay time to default 10seconds.
-                }
+                SmtpServer = _iniData["General"]["SMTPServer"];
+                PdfsPath = _iniData["General"]["PathToPDFs"];
+                EmailMsg = _iniData["General"]["EmailMesssge"];
+                EmailPort = Convert.ToInt16(_iniData["General"]["Port"]);
+                FileDelayTime = Convert.ToInt16(_iniData["General"]["FileDelayTime"]);
+                if (FileDelayTime < MIN_FILE_DELAY_TIME)
+                    FileDelayTime = MIN_FILE_DELAY_TIME;
+            }
+            catch (Exception ex) {
+                ShowSettingsFileError(ex.Message);
+            }
 
-                WatchList = new List<DPAType>(MAX_WATCHLIST_SIZE);
-                SetupWatchLists();
-            }
-            else {
-                CreateSettingsTemplate(settingsIni);
-                //TODO ADD Alert
-            }
+            WatchList = new List<DPAType>(MAX_WATCHLIST_SIZE);
+            SetupWatchLists();
+        }
+
+        /// <summary>
+        ///     Notifies the user of a settings file error then closes.
+        /// </summary>
+        /// <param name="infoString"></param>
+        private static void ShowSettingsFileError(string infoString) {
+            const string msgboxTitle = "Error with the settings file.";
+            const string instructions =
+                "Please verify the settings.ini file is correct and properly formated. Otherwise delete the file and run again to generate a template.";
+
+            MessageBox.Show(infoString + Environment.NewLine + Environment.NewLine + instructions, msgboxTitle);
+            Environment.Exit(-1);
         }
 
         /// <summary>
         ///     Create The WatchList
         /// </summary>
-        private void SetupWatchLists() {
-            foreach (SectionData section in _iniData.Sections) {
-                if (section.SectionName != "General") {
-                    var newDPAType = new DPAType(section);
-                    WatchList.Add(newDPAType);
-                }
+        private static void SetupWatchLists() {
+            foreach (
+                DPAType newDPAType in
+                    from section in _iniData.Sections where section.SectionName != "General" select new DPAType(section)
+                ) {
+                WatchList.Add(newDPAType);
             }
         }
 
@@ -85,9 +115,13 @@ namespace TDriver {
         ///     Create the settings template
         /// </summary>
         /// <param name="settingsIni">Path to settings file to create.</param>
-        private void CreateSettingsTemplate(string settingsIni) {
-            File.Create(settingsIni);
-            //TODO Create settings template.
+        public static void CreateSettingsTemplate(string settingsIni) {
+            Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("TDriver.Settings.ini");
+            var fileStream = new FileStream("Settings.ini", FileMode.CreateNew);
+            for (int i = 0; i < stream.Length; i++)
+                fileStream.WriteByte((byte) stream.ReadByte());
+            fileStream.Close();
+            ShowSettingsFileError("New Settings.ini file generated.");
         }
     }
 }

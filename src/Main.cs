@@ -8,8 +8,6 @@ using System.Windows.Forms;
 
 namespace TDriver {
     public partial class Main : Form {
-        private readonly Settings _settings;
-
         private WorkQueue _dpaWorkQueue;
         private List<Watcher> _folderWatchList;
 
@@ -32,57 +30,79 @@ namespace TDriver {
             };
 
             InitializeComponent();
-            _settings = new Settings(Application.StartupPath + "\\Settings.ini");
-            // TODO Update Log settings if default
-            // TODO Prompt user to close and update ini file.
+
+            //Load the settings or generate if it doesn't exist.
+            string settingsFile = Application.StartupPath + @"\Settings.ini";
+            if (File.Exists(settingsFile)) {
+                Settings.Setup(settingsFile);
+            }
+            else {
+                Settings.CreateSettingsTemplate(settingsFile);
+            }
         }
 
         #region UI Interaction
 
-        private Boolean _isPolling;
+        private Boolean _firstRun = true;
 
         private void tsBtnStart_Click(object sender, EventArgs e) {
             //Start the watcher
             tbtnStart.Enabled = false;
-            _dpaWorkQueue = new WorkQueue(_settings.DatabaseFile);
+
+            // Create the queue and watchlist when its the first time being started.
+            if (_firstRun) {
+                _dpaWorkQueue = new WorkQueue(Settings.DatabaseFile);
+                _dpaWorkQueue.StartQWorker();
+
+                _folderWatchList = new List<Watcher>(Settings.MAX_WATCHLIST_SIZE);
+            }
+
+            //Start the DPA Queue Worker
             _dpaWorkQueue.StartQWorker();
 
-            _folderWatchList = new List<Watcher>(Settings.MAX_WATCHLIST_SIZE);
 
-            foreach (DPAType dpaType in _settings.WatchList) {
+            foreach (DPAType dpaType in Settings.WatchList) {
                 //Queue Existing Files in the folder
                 _dpaWorkQueue.QueueDirectory(dpaType.WatchFolder, dpaType);
-                //Setup watcher for the folder.
 
-                _folderWatchList.Add(new Watcher(dpaType.WatchFolder, dpaType, ref _dpaWorkQueue,
-                    _settings.FileDelayTime));
-                //TODO Update UI with folders being watched.
+                //Setup watcher for the folder.
+                if (_firstRun) {
+                    _folderWatchList.Add(new Watcher(dpaType.WatchFolder, dpaType, ref _dpaWorkQueue,
+                        Settings.FileDelayTime));
+
+                    //TODO Update UI with folders being watched.
+                }
             }
+
+            //Start each foloder watcher.
+            foreach (Watcher watcher in _folderWatchList) {
+                watcher.Start();
+            }
+
+            //Update local variables
+            _firstRun = false;
+
+            //Update UI
             tbtnStop.Enabled = true;
             tslblStatus.Text = "Running";
             tslblStatus.ForeColor = Color.Green;
-            _isPolling = true;
         }
 
         private void tbtnStop_Click(object sender, EventArgs e) {
-            // Stops the watchers.
-            if (_isPolling) {
-                tbtnStop.Enabled = false;
-                foreach (Watcher watcher in _folderWatchList) {
-                    watcher.Stop();
-                    watcher.Dispose();
-                }
-                _dpaWorkQueue.StopQWorker();
+            tbtnStop.Enabled = false;
 
-
-                _isPolling = false;
-                _dpaWorkQueue = null;
-                _folderWatchList = null;
-                Debug.WriteLine("Poll haulted.");
-                tslblStatus.Text = "Stopped";
-                tslblStatus.ForeColor = Color.DarkRed;
-                tbtnStart.Enabled = true;
+            //Stop each folder watcher
+            foreach (Watcher watcher in _folderWatchList) {
+                watcher.Stop();
             }
+            //Stop DPA Queue Worker
+            _dpaWorkQueue.StopQWorker();
+
+            //Update UI
+            Debug.WriteLine("Poll haulted.");
+            tslblStatus.Text = "Stopped";
+            tslblStatus.ForeColor = Color.DarkRed;
+            tbtnStart.Enabled = true;
         }
 
 
@@ -91,7 +111,7 @@ namespace TDriver {
             if (FormWindowState.Minimized == WindowState) {
                 notifyIcon1.BalloonTipTitle = "T: Driver";
                 notifyIcon1.BalloonTipText = "Minimized to traybar.";
-                notifyIcon1.ShowBalloonTip(50);
+                //notifyIcon1.ShowBalloonTip(50);
                 //ShowInTaskbar = false;
             }
 
@@ -108,9 +128,6 @@ namespace TDriver {
             Activate();
         }
 
-        private void notifyIcon1_Click(object sender, EventArgs e) {
-        }
-
         private void exitMenuItem_Click(object sender, EventArgs e) {
             Close();
         }
@@ -121,11 +138,5 @@ namespace TDriver {
         }
 
         #endregion
-
-        private void Main_Load(object sender, EventArgs e) {
-        }
-
-        private void toolStripStatusLabel1_Click(object sender, EventArgs e) {
-        }
     }
 }

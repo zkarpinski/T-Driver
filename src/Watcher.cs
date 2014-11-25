@@ -31,7 +31,6 @@ namespace TDriver {
                     NotifyFilter = NotifyFilters.FileName
                 };
                 _watcher.Created += (sender, e) => NewFileCreated(e.FullPath, folderDPAType);
-                _watcher.EnableRaisingEvents = true;
             }
             catch (Exception ex) {
                 Debug.WriteLine(ex.Message);
@@ -44,6 +43,12 @@ namespace TDriver {
         /// <param name="file"></param>
         /// <param name="fileDPAType"></param>
         private void NewFileCreated(string file, DPAType fileDPAType) {
+            //Skip the file if it's hidden
+            //Used to ignore temp files created from Word.
+            if ((File.GetAttributes(file) & FileAttributes.Hidden) == FileAttributes.Hidden) {
+                return;
+            }
+
             Debug.WriteLine("New File detected!");
             //An artifical wait to handle duplicate file creations bug from our web application.
             // Multiple FileDelay by 1000 to get milliseconds.
@@ -58,7 +63,7 @@ namespace TDriver {
             _watcher.EnableRaisingEvents = false;
         }
 
-        public void Restart() {
+        public void Start() {
             _watcher.EnableRaisingEvents = true;
         }
 

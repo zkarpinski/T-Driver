@@ -14,14 +14,14 @@ namespace TDriver {
 
         private readonly Queue<Work> _workQueue = new Queue<Work>(50);
         private readonly Object _zLock = new object();
-        private readonly WorkListConnection wlConnection;
+        private readonly WorkListConnection _wlConnection;
 
         private Thread _queueWorker;
 
         private Boolean _quitWork;
 
         public WorkQueue(string databaseFile) {
-            wlConnection = new WorkListConnection(databaseFile);
+            _wlConnection = new WorkListConnection(databaseFile);
         }
 
         public void Dispose() {
@@ -80,10 +80,12 @@ namespace TDriver {
         /// </summary>
         public void QueueDirectory(string directoryToQueue, DPAType dpaType) {
             if (!Directory.Exists(directoryToQueue)) return; //Skip if the directory doesn't exist
-            string[] existingDPAFiles = Directory.GetFiles(directoryToQueue);
+            //Add all non-hidden files from the folder into an array.
+            IEnumerable<FileInfo> existingDPAFiles =
+                new DirectoryInfo(directoryToQueue).GetFiles().Where(x => (x.Attributes & FileAttributes.Hidden) == 0);
             if (existingDPAFiles.Any()) {
-                foreach (string file in existingDPAFiles) {
-                    FoundFileCheck(file, dpaType);
+                foreach (FileInfo file in existingDPAFiles) {
+                    FoundFileCheck(file.FullName, dpaType);
                 }
             }
         }
@@ -120,14 +122,15 @@ namespace TDriver {
                     if (dequeuedWork != null) {
                         Debug.WriteLine("Working");
                         if (dequeuedWork.Process()) {
-                            wlConnection.Add(ref dequeuedWork);
+                            _wlConnection.Add(ref dequeuedWork);
+                            //Todo Handle failed database connection.
                             dequeuedWork.Move();
                             dequeuedWork.Completed = true;
                             Debug.WriteLine(dequeuedWork.GetType() + " Completed!");
                         }
                         else {
                             //TODO Remove this during deployment!!
-                            wlConnection.Add(ref dequeuedWork);
+                            _wlConnection.Add(ref dequeuedWork);
                             Debug.WriteLine(dequeuedWork.GetType() + " Failed!");
                         }
                     }

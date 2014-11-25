@@ -1,5 +1,8 @@
 ﻿using System;
+#if !DEBUG
 using RFCOMAPILib;
+
+#endif
 
 namespace TDriver {
     public class FaxWork : Work {
@@ -8,7 +11,7 @@ namespace TDriver {
         private readonly string _server;
         private readonly string _userId;
 
-        public FaxWork(Fax fFax, DPAType typeOfDPA) {
+        public FaxWork(Fax fFax, ref DPAType typeOfDPA) {
             _fax = fFax;
             _userId = typeOfDPA.UserId;
             _server = typeOfDPA.Server;
@@ -23,11 +26,11 @@ namespace TDriver {
 
         public override Boolean Process() {
 #if DEBUG //Allow simulating faxing, outside of production system.
-            //Debug result :: Faxing Success.
+    //Debug result :: Faxing Success.
             _fax.AddSentTime();
             return true;
 #else
-    //Release:: Fax Process
+            //Release:: Fax Process
             try {
                 //Setup Rightfax Server Connection
                 FaxServer faxsvr = SetupRightFaxServer();
@@ -50,11 +53,13 @@ namespace TDriver {
             }
 
             catch (Exception e) {
+                Logger.AddError(Settings.ErrorLogfile, e.Message);
                 return false;
             }
 #endif
         }
 
+#if !DEBUG
         /// <summary>
         ///     Setup RightFax server connection.
         /// </summary>
@@ -82,5 +87,6 @@ namespace TDriver {
             newFax.UserComments = _comment;
             return newFax;
         }
+#endif
     }
 }

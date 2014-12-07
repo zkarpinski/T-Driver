@@ -26,13 +26,18 @@ namespace TDriver {
         public override bool Process() {
 #if DEBUG //Allow simulating
     //Debug result :: Email Success.
-    _email.AddSentTime();
-    return false;
-
-#else
+    // _email.AddSentTime();
+    //return false;
+            
             if (!CreatePdfToSend()) return false;
             //Send email
             return SendEmail();
+
+
+#else
+            //Release: Does NOT processs
+            //Todo: Get working consistantly
+            return false;
 
 #endif
         }
@@ -41,7 +46,7 @@ namespace TDriver {
             const string pdfPrinterName = "PDF995";
 
             try {
-                var wApp = new Microsoft.Office.Interop.Word.Application {Visible = false};
+                var wApp = new Application {Visible = false, DisplayAlerts = WdAlertLevel.wdAlertsNone};
                 //Store the old printer name and change the active to the PDF printer name
                 string prevPrinter = wApp.ActivePrinter;
                 wApp.ActivePrinter = pdfPrinterName;
@@ -58,22 +63,34 @@ namespace TDriver {
 
                 //Wait until PDF file is made.
                 while (!File.Exists(_email.FileToSend)) {
-                    Thread.Sleep(200);
+                    Thread.Sleep(2000);
                 }
 
                 //Close document and word application
                 oDoc.Close();
                 wApp.Quit();
+
+                //Check the file size
+                long length = new FileInfo(_email.FileToSend).Length;
+                if (length < 29000) {
+                    Thread.Sleep(5000);
+                    length = new FileInfo(_email.FileToSend).Length;
+                    if (length < 29000) {
+                        Logger.AddError(Settings.ErrorLogfile, _email.FileName + "file size error. Did NOT send.");
+                    }
+                    return false;
+                }
+
                 return true;
             }
             catch (Exception ex) {
-                Logger.AddError(Settings.ErrorLogfile,ex.Message);
+                Logger.AddError(Settings.ErrorLogfile, ex.Message);
                 return false;
             }
         }
 
         /// <summary>
-        /// Creates and sends an email using the data from email dpa-type field.
+        ///     Creates and sends an email using the data from email dpa-type field.
         /// </summary>
         /// <returns>Success or Fail.</returns>
         private bool SendEmail() {
@@ -89,7 +106,8 @@ namespace TDriver {
                 Configuration iConfg = eMessage.Configuration;
                 iConfg.Fields["http://schemas.microsoft.com/cdo/configuration/sendusing"].Value = cdoSendUsingPort;
                 iConfg.Fields["http://schemas.microsoft.com/cdo/configuration/smtpserver"].Value = smtpServer;
-                iConfg.Fields["http://schemas.microsoft.com/cdo/configuration/smtpconnectiontimeout"].Value = smtpConnectionTimeout;
+                iConfg.Fields["http://schemas.microsoft.com/cdo/configuration/smtpconnectiontimeout"].Value =
+                    smtpConnectionTimeout;
                 iConfg.Fields.Update();
 
                 //Setup the email and send.

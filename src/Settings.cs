@@ -39,6 +39,7 @@ namespace TDriver {
             WatchFolder = section.Keys["WatchFolder"];
             MoveFolder = section.Keys["MoveFolder"];
             SendEmailFrom = section.Keys["SendEmailFrom"];
+            //Todo Change the default RightFaxComment if one exists.
             //FaxComment = section.Keys["RightFaxComment"];
             FaxComment = defaultRightFaxComment;
         }
@@ -100,7 +101,7 @@ namespace TDriver {
         }
 
         /// <summary>
-        ///     Create The WatchList
+        ///     Create The WatchList using linq.
         /// </summary>
         private static void SetupWatchLists() {
             foreach (
@@ -112,15 +113,23 @@ namespace TDriver {
         }
 
         /// <summary>
-        ///     Create the settings template
+        ///     Create the settings template from the template stored within the executable
         /// </summary>
-        /// <param name="settingsIni">Path to settings file to create.</param>
-        public static void CreateSettingsTemplate(string settingsIni) {
+        public static void CreateSettingsTemplate(string settingsFile)
+        {
             Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("TDriver.Settings.ini");
-            var fileStream = new FileStream("Settings.ini", FileMode.CreateNew);
+            // Null value check
+            if (stream == null) {
+                ShowSettingsFileError("Error generating template Settings.ini.");
+                return;
+            }
+            
+            //Copy the internal template to the application's folder.
+            var fileStream = new FileStream(settingsFile, FileMode.CreateNew);
             for (int i = 0; i < stream.Length; i++)
                 fileStream.WriteByte((byte) stream.ReadByte());
             fileStream.Close();
+
             ShowSettingsFileError("New Settings.ini file generated.");
         }
     }

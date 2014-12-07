@@ -25,29 +25,29 @@ namespace TDriver {
         }
 
         public override Boolean Process() {
-#if DEBUG //Allow simulating faxing, outside of production system.
+            //Verify the fax meets critera.
+            //TODO Add a Validate function to Fax class
+            if (!_fax.IsValid) return false;
+
+#if DEBUG //Allow simulating a successful/failed fax, outside of production system.
     //Debug result :: Faxing Success.
             _fax.AddSentTime();
             return true;
-#else
-            //Release:: Fax Process
+
+#else //Release:: Fax Process
             try {
                 //Setup Rightfax Server Connection
                 FaxServer faxsvr = SetupRightFaxServer();
                 faxsvr.OpenServer();
 
                 //Create the fax and send.
-                if (_fax.IsValid) {
-                    RFCOMAPILib.Fax newFax = CreateRightFax_Fax(faxsvr);
-                    newFax.Send();
-                    _fax.AddSentTime();
-                    // TODO move the fax, within RightFax, to the sent folder.
-                    // newFax.MoveToFolder
-                }
+                RFCOMAPILib.Fax newFax = CreateRightFax_Fax(faxsvr);
+                newFax.Send();
+                _fax.AddSentTime();
 
-                else {
-                    return false;
-                }
+                // TODO move the fax, within RightFax, to the sent folder.
+                // newFax.MoveToFolder
+
                 faxsvr.CloseServer();
                 return true;
             }
@@ -59,7 +59,9 @@ namespace TDriver {
 #endif
         }
 
-#if !DEBUG
+
+#if !DEBUG //Directive used here so application can be debugged and tested on a machine WITHOUT the RFCOMAPI.dll
+
         /// <summary>
         ///     Setup RightFax server connection.
         /// </summary>

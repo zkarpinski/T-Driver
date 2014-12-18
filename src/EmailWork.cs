@@ -55,7 +55,7 @@ namespace TDriver {
                 //  Don't confirm conversion from RTF to doc
                 //  Open as readonly
                 //  Don't add to recent list
-                Document oDoc = wApp.Documents.Open(_email.Document, false, true, false); //readonly,
+                _Document oDoc = wApp.Documents.Open(_email.Document, false, true, false); //readonly,
                 oDoc.PrintOut(false); //Printout NOT async(background)
 
                 //Changes the default printer back

@@ -3,35 +3,47 @@ using System.IO;
 using System.Threading;
 using CDO;
 using Microsoft.Office.Interop.Word;
+using System.Diagnostics;
 
 namespace TDriver {
     public class EmailWork : Work {
         private readonly string _eMsg;
-        private readonly Email _email;
+        private readonly AP_Document _email;
         private readonly string _sendAs;
 
-        public EmailWork(Email eEmail, ref DPAType typeOfDPA) {
-            _email = eEmail;
-            _sendAs = typeOfDPA.SendEmailFrom;
-            MoveLocation = typeOfDPA.MoveFolder;
-            KindOfDPA = typeOfDPA.Name;
-            _sendAs = typeOfDPA.SendEmailFrom;
-            _eMsg = Settings.EmailMsg;
+        // email work constructor for work factory
+        public EmailWork(string moveLocation, string origDocument, string sendAs, string eMsg, AP_Document email) : base(moveLocation, origDocument) {
+            this._email = email;
+            this._sendAs = sendAs;
+            this._eMsg = eMsg;
         }
 
-        public override DPA DPAObject {
+        //Deprecated
+        public EmailWork(AP_Document eEmail, ref AP_Subsection subsection) {
+            _email = eEmail;
+            _sendAs = subsection.SendEmailFrom;
+            MoveLocation = subsection.MoveFolder;
+            
+        }
+
+        public override AP_Document DocObject {
             get { return _email; }
+        }
+
+        public string Attachment {
+            get { return _email.FileToSend; }
         }
 
         public override bool Process() {
 #if DEBUG //Allow simulating
     //Debug result :: Email Success.
-    // _email.AddSentTime();
-    //return false;
+    _email.AddSentTime();
+            Debug.WriteLine(String.Format("Emailed {0} to {1} for {2} with account {3} using Email:{4}.", Attachment, _email.SendTo, _email.CustomerName, _email.Account, _sendAs));
+            return true;
             
-            if (!CreatePdfToSend()) return false;
+            //if (!CreatePdfToSend()) return false;
             //Send email
-            return SendEmail();
+           // return SendEmail();
 
 
 #else
@@ -112,7 +124,7 @@ namespace TDriver {
 
                 //Setup the email and send.
                 eMessage.Configuration = iConfg;
-                eMessage.To = _email.EmailAddress;
+                eMessage.To = _email.SendTo;
                 eMessage.From = _sendAs;
                 eMessage.Subject = _email.Account + " Deferred Payment Agreement";
                 eMessage.HTMLBody = _eMsg;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 #if !DEBUG
 using RFCOMAPILib;
 
@@ -7,21 +8,27 @@ using RFCOMAPILib;
 namespace TDriver {
     public class FaxWork : Work {
         private readonly string _comment;
-        private readonly Fax _fax;
+        private readonly AP_Document _fax;
         private readonly string _server;
         private readonly string _userId;
 
-        public FaxWork(Fax fFax, ref DPAType typeOfDPA) {
-            _fax = fFax;
-            _userId = typeOfDPA.UserId;
-            _server = typeOfDPA.Server;
-            _comment = typeOfDPA.FaxComment;
-            MoveLocation = typeOfDPA.MoveFolder;
-            KindOfDPA = typeOfDPA.Name;
+        public FaxWork(string moveLocation, string origDocument, string faxNumber, string recipient, string fileToSend, AP_Document fax, AP_Subsection subsection) : base(moveLocation, origDocument) {
+            _fax = fax;
+            _userId = subsection.UserId;
+            _server = subsection.Server;
+            _comment = subsection.FaxComment;
+            this.Recipient = recipient;
         }
 
-        public override DPA DPAObject {
+        public override AP_Document DocObject {
             get { return _fax; }
+        }
+        public string FaxNumber {
+            get { return _fax.SendTo.Replace("-", String.Empty); }
+        }
+        public string Recipient {get; set;}
+        public string Attachment {
+            get { return _fax.FileToSend; }
         }
 
         public override Boolean Process() {
@@ -32,6 +39,7 @@ namespace TDriver {
 #if DEBUG //Allow simulating a successful/failed fax, outside of production system.
     //Debug result :: Faxing Success.
             _fax.AddSentTime();
+            Debug.WriteLine(String.Format("Faxed {0} to {1} for {2} with account {3} using Server:{4}, User:{5}.", Attachment, FaxNumber, Recipient, _fax.Account, _server, _userId));
             return true;
 
 #else //Release:: Fax Process
@@ -83,9 +91,9 @@ namespace TDriver {
         /// <returns></returns>
         private RFCOMAPILib.Fax CreateRightFax_Fax(FaxServer faxsvr) {
             var newFax = (RFCOMAPILib.Fax) faxsvr.CreateObject[CreateObjectType.coFax];
-            newFax.ToName = DPAObject.CustomerName;
-            newFax.ToFaxNumber = "1" + _fax.FaxNumber.Replace("-", ""); //Add US Code (1)
-            newFax.Attachments.Add(DPAObject.Document);
+            newFax.ToName = this.Recipient;
+            newFax.ToFaxNumber = this.FaxNumber;
+            newFax.Attachments.Add(this.Attachment);
             newFax.UserComments = _comment;
             return newFax;
         }

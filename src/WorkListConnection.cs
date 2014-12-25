@@ -17,22 +17,28 @@ namespace TDriver {
         public bool Add(ref Work work) {
             try {
                 _con.Open();
+                //Todo Verify connection state is Open
                 using (var cmdInsert = new OleDbCommand(strCommand, _con)) {
-                    cmdInsert.Parameters.AddWithValue("@dPAType", work.KindOfDPA);
-                    cmdInsert.Parameters.AddWithValue("@delivery", work.DPAObject.DeliveryMethod.ToString());
-                    cmdInsert.Parameters.AddWithValue("@account", work.DPAObject.Account);
-                    cmdInsert.Parameters.AddWithValue("@sendTo", work.DPAObject.SendTo);
-                    cmdInsert.Parameters.AddWithValue("@customerName", work.DPAObject.CustomerName);
-                    cmdInsert.Parameters.AddWithValue("@timeSent", work.DPAObject.TimeSent);
-                    cmdInsert.Parameters.AddWithValue("@fileCreationTime", work.DPAObject.FileCreationTime);
-                    cmdInsert.Parameters.AddWithValue("@document", work.DPAObject.Document);
+                    //Todo Fix KindOfDPA
+                    cmdInsert.Parameters.AddWithValue("@dPAType", "Active");
+                    cmdInsert.Parameters.AddWithValue("@delivery", work.DocObject.DeliveryMethod.ToString());
+                    cmdInsert.Parameters.AddWithValue("@account", work.DocObject.Account);
+                    cmdInsert.Parameters.AddWithValue("@sendTo", work.DocObject.SendTo);
+                    cmdInsert.Parameters.AddWithValue("@customerName", work.DocObject.CustomerName);
+                    cmdInsert.Parameters.AddWithValue("@timeSent", work.DocObject.TimeSent);
+                    cmdInsert.Parameters.AddWithValue("@fileCreationTime", work.DocObject.FileCreationTime);
+                    cmdInsert.Parameters.AddWithValue("@document", work.DocObject.Document);
                     cmdInsert.ExecuteNonQuery();
                 }
                 _con.Close();
+                //Todo verify connection closed.
                 return true;
             }
             catch (Exception ex) {
                 Logger.AddError(Settings.ErrorLogfile, ex.Message);
+                //Close the connection if it's not already closed.
+                if (_con.State != System.Data.ConnectionState.Closed)
+                    _con.Close();
                 return false;
             }
         }

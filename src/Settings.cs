@@ -8,8 +8,11 @@ using IniParser;
 using IniParser.Model;
 
 namespace TDriver {
-    public struct DPAType {
-        public readonly string FaxComment;
+    public struct AP_Subsection {
+        //Constants
+        const string defaultRightFaxComment = "Sent via T-Driver";
+
+        //Required fields
         public readonly string MoveFolder;
         public readonly string Name;
         public readonly string Password;
@@ -17,21 +20,27 @@ namespace TDriver {
         public readonly string Server;
         public readonly string UserId;
         public readonly string WatchFolder;
+        //public readonly DocumentType DocType;
 
+        //Optional Fields
+        public readonly string FaxComment;
 
-        //
+        //Internal options.
         public bool DisableEmail;
         public bool DisableFax;
         public bool DisableMail;
+        public bool IsValid;
 
 
-        public DPAType(SectionData section) {
+        public AP_Subsection(SectionData section) {
             //Default Settings
             DisableEmail = false;
             DisableFax = false;
             DisableMail = false;
+            IsValid = true;
 
-            const string defaultRightFaxComment = "Sent via T-Driver";
+            //Parse the following fields
+            //Todo Check if required fields are null/invalid
             Name = section.SectionName;
             Server = section.Keys["Server"];
             UserId = section.Keys["User"];
@@ -39,9 +48,18 @@ namespace TDriver {
             WatchFolder = section.Keys["WatchFolder"];
             MoveFolder = section.Keys["MoveFolder"];
             SendEmailFrom = section.Keys["SendEmailFrom"];
-            //Todo Change the default RightFaxComment if one exists.
-            //FaxComment = section.Keys["RightFaxComment"];
-            FaxComment = defaultRightFaxComment;
+            //Default to the default Rightfax comment if one is not defined.
+            FaxComment = section.Keys["RightFaxComment"];
+            if (FaxComment == null)
+                FaxComment = defaultRightFaxComment;
+
+            /* User defined document type
+            string tempDoctype = section.Keys["DocumentType"];
+            if (Enum.TryParse(tempDoctype, true, out DocType)) {
+                DocType = (DocumentType) Enum.Parse(typeof(DocumentType), section.Keys["DocumentType"], true);
+            }
+            */
+
         }
     }
 
@@ -57,7 +75,7 @@ namespace TDriver {
         public static String SmtpServer;
         public static short EmailPort;
         public static Int16 FileDelayTime;
-        public static List<DPAType> WatchList;
+        public static List<AP_Subsection> WatchList;
         private static IniData _iniData;
 
         public static void Setup(String settingsIni) {
@@ -83,7 +101,7 @@ namespace TDriver {
                 ShowSettingsFileError(ex.Message);
             }
 
-            WatchList = new List<DPAType>(MAX_WATCHLIST_SIZE);
+            WatchList = new List<AP_Subsection>(MAX_WATCHLIST_SIZE);
             SetupWatchLists();
         }
 
@@ -105,10 +123,10 @@ namespace TDriver {
         /// </summary>
         private static void SetupWatchLists() {
             foreach (
-                DPAType newDPAType in
-                    from section in _iniData.Sections where section.SectionName != "General" select new DPAType(section)
+                AP_Subsection newSubsection in
+                    from section in _iniData.Sections where section.SectionName != "General" select new AP_Subsection(section)
                 ) {
-                WatchList.Add(newDPAType);
+                WatchList.Add(newSubsection);
             }
         }
 

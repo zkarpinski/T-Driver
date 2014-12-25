@@ -49,25 +49,22 @@ namespace TDriver {
             //Start the watcher
             tbtnStart.Enabled = false;
 
-            // Create the queue and watchlist when its the first time being started.
+            // Create the queue and watchlist when its the first time started.
             if (_firstRun) {
                 _dpaWorkQueue = new WorkQueue(Settings.DatabaseFile);
-                _dpaWorkQueue.StartQWorker();
-
                 _folderWatchList = new List<Watcher>(Settings.MAX_WATCHLIST_SIZE);
             }
 
             //Start the DPA Queue Worker
             _dpaWorkQueue.StartQWorker();
 
-
-            foreach (DPAType dpaType in Settings.WatchList) {
+            foreach (AP_Subsection subsection in Settings.WatchList) {
                 //Queue Existing Files in the folder
-                _dpaWorkQueue.QueueDirectory(dpaType.WatchFolder, dpaType);
+                _dpaWorkQueue.QueueDirectory(subsection.WatchFolder, subsection);
 
                 //Setup watcher for the folder.
                 if (_firstRun) {
-                    _folderWatchList.Add(new Watcher(dpaType.WatchFolder, dpaType, ref _dpaWorkQueue,
+                    _folderWatchList.Add(new Watcher(subsection.WatchFolder, subsection, ref _dpaWorkQueue,
                         Settings.FileDelayTime));
 
                     //TODO Update UI with folders being watched.

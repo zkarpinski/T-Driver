@@ -46,20 +46,21 @@ namespace TDriver {
             _queueWorker.Start();
         }
 
-        public void FoundFileCheck(string file, DPAType fileDPAType) {
+        public void FoundFileCheck(string file, AP_Subsection fileSubsection) {
             //Create dpa from factory
-            DPA dpa = DPAFactory.Create(file);
-            if (dpa == null) return;
+            AP_Document doc = AP_Factory.Create(file, fileSubsection);
+            if (doc == null) return;
 
-            if (dpa.IsValid) {
-                Work work = WorkFactory.Create(dpa, fileDPAType);
+            if (doc.IsValid) {
+                Work work = WorkFactory.Create(doc, fileSubsection);
                 if (work == null) return;
                 AddToQueue(work);
             }
 
             else {
-                Debug.WriteLine(dpa.Account + " was skipped.");
-                dpa = null;
+                Debug.WriteLine(doc.Account + " was skipped.");
+                doc = null;
+                return;
             }
         }
 
@@ -78,14 +79,14 @@ namespace TDriver {
         /// <summary>
         ///     Checks all files from within the setting's directories, to see if they should be queued to be worked.
         /// </summary>
-        public void QueueDirectory(string directoryToQueue, DPAType dpaType) {
+        public void QueueDirectory(string directoryToQueue, AP_Subsection Subsection) {
             if (!Directory.Exists(directoryToQueue)) return; //Skip if the directory doesn't exist
             //Add all non-hidden files from the folder into an array.
             IEnumerable<FileInfo> existingDPAFiles =
                 new DirectoryInfo(directoryToQueue).GetFiles().Where(x => (x.Attributes & FileAttributes.Hidden) == 0);
             if (existingDPAFiles.Any()) {
                 foreach (FileInfo file in existingDPAFiles) {
-                    FoundFileCheck(file.FullName, dpaType);
+                    FoundFileCheck(file.FullName, Subsection);
                 }
             }
         }
@@ -114,7 +115,7 @@ namespace TDriver {
                     lock (_zLock) {
                         if (_workQueue.Count > 0) {
                             dequeuedWork = _workQueue.Dequeue();
-                            Debug.WriteLine(dequeuedWork.GetType() + " Found: " + dequeuedWork.DPAObject.Document);
+                            Debug.WriteLine(dequeuedWork.GetType() + " Found: " + dequeuedWork.DocObject.Document);
                         }
                     }
 

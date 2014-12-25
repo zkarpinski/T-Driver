@@ -15,6 +15,8 @@
         {
             if (disposing && (components != null))
             {
+                if (_dpaWorkQueue != null)
+                    _dpaWorkQueue.Dispose();
                 components.Dispose();
             }
             base.Dispose(disposing);

@@ -9,17 +9,18 @@ namespace TDriver {
             Completed = false;
         }
 
-        protected Work(DPA dpa, DPAType dpaType) {
-            Completed = false;
+        protected Work(String moveLocation, String origDocument) {
+            this.MoveLocation = moveLocation;
+            this.DocumentToMove = origDocument;
         }
 
-        public string KindOfDPA { get; protected set; }
         protected string MoveLocation { private get; set; }
-        public abstract DPA DPAObject { get; }
+        protected string DocumentToMove { private get; set; }
+        public abstract AP_Document DocObject { get; }
 
         public bool Move() {
-            string dpaFile = DPAObject.Document;
-            string fileName = Path.GetFileName(dpaFile);
+            string docFile = DocObject.Document;
+            string fileName = Path.GetFileName(docFile);
             if (fileName == null) return false;
             string saveAs = Path.Combine(MoveLocation, fileName);
 
@@ -29,7 +30,7 @@ namespace TDriver {
                 File.Delete(saveAs);
             }
             try {
-                File.Move(dpaFile, saveAs);
+                File.Move(docFile, saveAs);
                 return true;
             }
             catch (Exception) {

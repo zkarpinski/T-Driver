@@ -20,14 +20,8 @@ namespace TDriver {
 
     public class AP_Document {
 
+        //Data properties
         public string SendTo { get; set; }
-
-        protected AP_Document() {
-            IsValid = true;
-            Sent = false;
-            Rejected = false;
-        }
-
         public string CustomerName { get; protected set; }
         public string Document { get; protected set; }
         public string FileToSend { get; protected set; }
@@ -35,12 +29,25 @@ namespace TDriver {
         public string ServiceAddress { get; protected set; }
         public string FileName { get; protected set; }
         public DeliveryMethodType DeliveryMethod { get; protected set; }
+        public virtual DocumentType DocumentType { get { return DocumentType.ERROR; } }
         public DateTime TimeSent { get; private set; }
         public DateTime FileCreationTime { get; protected set; }
 
+        //Internal use properties
         public Boolean IsValid { get; set; }
         public Boolean Sent { get; set; }
         public Boolean Rejected { get; set; }
+
+        protected AP_Document() {}
+
+        protected AP_Document(string document) {
+            IsValid = true;
+            Sent = false;
+            Rejected = false;
+            this.Document = document;
+            this.FileName = Path.GetFileNameWithoutExtension(Document);
+            this.FileCreationTime = RemoveMilliseconds(File.GetCreationTime(Document));
+        }
 
         protected string RegexAccount(string strAccount) {
             const string rgxAccountPattern = @"\d{5}-\d{5}";

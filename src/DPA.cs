@@ -8,6 +8,7 @@ namespace TDriver {
         public DPA() {}
 
         public string KindOfDPA { get; set; }
+        public override DocumentType DocumentType { get { return DocumentType.DPA; } }
 
         /// <summary>
         ///     Constructer used for Parser
@@ -19,14 +20,12 @@ namespace TDriver {
         /// <param name="dateOffered"></param>
         /// <param name="document"></param>
         public DPA(string accountNumber, string sendTo, string customer, string serviceAddress, string dateOffered,
-            string document) {
+            string document) : base(document) {
             this.Account = RegexAccount(accountNumber);
             this.SendTo = CleanSendToField(sendTo);
             this.CustomerName = customer.Replace("Customer Name ", String.Empty).ToUpper();
             this.ServiceAddress = CleanServiceAddressField(serviceAddress);
-            this.Document = document;
-            this.FileName = Path.GetFileNameWithoutExtension(Document);
-            this.FileCreationTime = RemoveMilliseconds(File.GetCreationTime(Document));
+
         }
 
 

@@ -123,7 +123,7 @@ namespace TDriver {
                     if (dequeuedWork != null) {
                         Debug.WriteLine("Working");
                         if (dequeuedWork.Process()) {
-                            _wlConnection.Add(ref dequeuedWork);
+                            _wlConnection.Add(dequeuedWork.DocObject);
                             //Todo Handle failed database connection.
                             dequeuedWork.Move();
                             dequeuedWork.Completed = true;
@@ -131,7 +131,7 @@ namespace TDriver {
                         }
                         else {
                             //TODO Remove this during deployment!!
-                            _wlConnection.Add(ref dequeuedWork);
+                            _wlConnection.Add(dequeuedWork.DocObject);
                             Debug.WriteLine(dequeuedWork.GetType() + " Failed!");
                         }
                     }

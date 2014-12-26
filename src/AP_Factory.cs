@@ -35,8 +35,8 @@ namespace TDriver {
             }
 
             //Derived case specific options
-            // DPA
-            //  Add the type of DPA.
+            //DPA
+            //Add the type of DPA.
             if (docType == DocumentType.DPA && newApDoc is DPA) {
                 ((DPA)newApDoc).KindOfDPA = subsection.Name;
             }
@@ -55,7 +55,7 @@ namespace TDriver {
         }
 
         /// <summary>
-        ///     Find the delivery method for the DPA.
+        ///     Find the delivery method for the document
         /// </summary>
         /// <param name="sendToField"></param>
         /// <returns></returns>
@@ -91,6 +91,11 @@ namespace TDriver {
             return null;
         }
 
+        /// <summary>
+        /// Determine the document type based on naming convention.
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         private static DocumentType DetermineDocumentType(string file) {
             //Check for Medical CME
             //Looks for 'Acct-99999-99999'

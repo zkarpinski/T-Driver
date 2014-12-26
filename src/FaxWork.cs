@@ -20,6 +20,14 @@ namespace TDriver {
             this.Recipient = recipient;
         }
 
+        public FaxWork(AP_Document fax, AP_Subsection subsection) : base(subsection.MoveFolder, fax.Document) {
+            _fax = fax;
+            _userId = subsection.UserId;
+            _server = subsection.Server;
+            _comment = subsection.FaxComment;
+            this.Recipient = fax.CustomerName;
+        }
+
         public override AP_Document DocObject {
             get { return _fax; }
         }

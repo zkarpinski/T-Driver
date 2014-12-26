@@ -5,6 +5,12 @@ namespace TDriver {
     public abstract class Work {
         public Boolean Completed;
 
+        public abstract AP_Document DocObject { get; }
+        public DocumentType DocType { get; protected set; }
+        protected string MoveLocation { private get; set; }
+        protected string DocumentToMove { private get; set; }
+
+
         protected Work() {
             Completed = false;
         }
@@ -13,10 +19,6 @@ namespace TDriver {
             this.MoveLocation = moveLocation;
             this.DocumentToMove = origDocument;
         }
-
-        protected string MoveLocation { private get; set; }
-        protected string DocumentToMove { private get; set; }
-        public abstract AP_Document DocObject { get; }
 
         public bool Move() {
             string docFile = DocObject.Document;

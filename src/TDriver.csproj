@@ -84,14 +84,12 @@
     <Compile Include="About.Designer.cs">
       <DependentUpon>About.cs</DependentUpon>
     </Compile>
+    <Compile Include="AP_Document.cs" />
     <Compile Include="DPA.cs" />
-    <Compile Include="DPAFactory.cs" />
-    <Compile Include="Email.cs" />
+    <Compile Include="AP_Factory.cs" />
     <Compile Include="EmailWork.cs" />
-    <Compile Include="Fax.cs" />
     <Compile Include="FaxWork.cs" />
     <Compile Include="Logger.cs" />
-    <Compile Include="Mail.cs" />
     <Compile Include="MailWork.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
@@ -99,6 +97,7 @@
     <Compile Include="Main.Designer.cs">
       <DependentUpon>Main.cs</DependentUpon>
     </Compile>
+    <Compile Include="MedicalCME.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

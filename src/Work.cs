@@ -9,19 +9,20 @@ namespace TDriver {
             Completed = false;
         }
 
-        protected Work(DPA dpa, DPAType dpaType) {
-            Completed = false;
+        protected Work(String moveLocation, String origDocument) {
+            MoveLocation = moveLocation;
+            DocumentToMove = origDocument;
         }
 
-        public string KindOfDPA { get; protected set; }
+        public abstract AP_Document DocObject { get; }
+        public DocumentType DocType { get; protected set; }
         protected string MoveLocation { private get; set; }
-        public abstract DPA DPAObject { get; }
+        protected string DocumentToMove { private get; set; }
 
         public bool Move() {
-            string dpaFile = DPAObject.Document;
-            string fileName = Path.GetFileName(dpaFile);
+            var fileName = Path.GetFileName(DocumentToMove);
             if (fileName == null) return false;
-            string saveAs = Path.Combine(MoveLocation, fileName);
+            var saveAs = Path.Combine(MoveLocation, fileName);
 
             //Delete the file in the destination if it exists already.
             // since File.Move does not overwrite.
@@ -29,7 +30,7 @@ namespace TDriver {
                 File.Delete(saveAs);
             }
             try {
-                File.Move(dpaFile, saveAs);
+                File.Move(DocumentToMove, saveAs);
                 return true;
             }
             catch (Exception) {

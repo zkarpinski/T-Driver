@@ -6,7 +6,7 @@ namespace TDriver {
     internal class Parser {
         public string LoadedFile { get; private set; }
         public DocumentType LoadedFiletype { get; private set; }
-        private RTFDomDocument _Doc;
+        private RTFDomDocument _doc;
 
         //Loads the desired file into the parser.
         //Todo Finish the loading files int parser idea.
@@ -14,21 +14,21 @@ namespace TDriver {
         public bool Load(string file, DocumentType docType) {
             LoadedFiletype = docType;
             LoadedFile = file;
-            _Doc = new RTFDomDocument();
-            _Doc.Load(file);
+            _doc = new RTFDomDocument();
+            _doc.Load(file);
             return true;
         }
 
         public AP_Document FindData(string file, DocumentType docType) {
             //TODO Check if file in use
-            var _domDoc = new RTFDomDocument();
-            _domDoc.Load(file);
+            RTFDomDocument domDoc = new RTFDomDocument();
+            domDoc.Load(file);
 
             switch (docType) {
                 case DocumentType.DPA:
-                    return DPA_Parser(ref _domDoc, file);
+                    return DPA_Parser(ref domDoc, file);
                 case DocumentType.CME:
-                    return CME_Parser(ref _domDoc, file);
+                    return CME_Parser(ref domDoc, file);
                 default:
                     return null;
             }
@@ -42,7 +42,7 @@ namespace TDriver {
         /// <returns></returns>
         /// <remarks>
         /// Table 1: Dr information: 5 Rows x 2 Columns (except 1st row, 3 columns)
-        /// Table 2: Customer Info:  4 Rows x 2 Columnss
+        /// Table 2: Customer Info:  4 Rows x 2 Columns
         /// </remarks>
         private AP_Document CME_Parser(ref RTFDomDocument cmeDoc, string file) {
             if (cmeDoc.Elements.OfType<RTFDomTable>().Count() == 2) {
@@ -65,7 +65,7 @@ namespace TDriver {
                 String patientName = DataScrubber(custTableRows[3].Elements[1].InnerText);
                 String lastVisit = DataScrubber(custTableRows[4].Elements[1].InnerText);
 
-                return (new Medical_CME(drFaxNumber, drName, drPhoneNumber, drCompany, accountNumber, accountHolder, patientName, serviceAddress, lastVisit, file));
+                return (new MedicalCME(drFaxNumber, drName, drPhoneNumber, drCompany, accountNumber, accountHolder, patientName, serviceAddress, lastVisit, file));
 
             }
             return null;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+
 #if !DEBUG
 using RFCOMAPILib;
 
@@ -12,7 +13,8 @@ namespace TDriver {
         private readonly string _server;
         private readonly string _userId;
 
-        public FaxWork(string moveLocation, string origDocument, string faxNumber, string recipient, string fileToSend, AP_Document fax, AP_Subsection subsection) : base(moveLocation, origDocument) {
+        public FaxWork(string moveLocation, string origDocument, string faxNumber, string recipient, string fileToSend,
+            AP_Document fax, AP_Subsection subsection) : base(moveLocation, origDocument) {
             _fax = fax;
             _userId = subsection.UserId;
             _server = subsection.Server;
@@ -28,13 +30,14 @@ namespace TDriver {
             this.Recipient = fax.CustomerName;
         }
 
-        public override AP_Document DocObject {
-            get { return _fax; }
-        }
+        public override AP_Document DocObject => _fax;
+
         public string FaxNumber {
             get { return _fax.SendTo.Replace("-", String.Empty); }
         }
-        public string Recipient {get; set;}
+
+        public string Recipient { get; set; }
+
         public string Attachment {
             get { return _fax.FileToSend; }
         }
@@ -45,9 +48,10 @@ namespace TDriver {
             if (!_fax.IsValid) return false;
 
 #if DEBUG //Allow simulating a successful/failed fax, outside of production system.
-    //Debug result :: Faxing Success.
+            //Debug result :: Faxing Success.
             _fax.AddSentTime();
-            Debug.WriteLine(String.Format("Faxed {0} to {1} for {2} with account {3} using Server:{4}, User:{5}.", Attachment, FaxNumber, Recipient, _fax.Account, _server, _userId));
+            Debug.WriteLine(String.Format("Faxed {0} to {1} for {2} with account {3} using Server:{4}, User:{5}.",
+                Attachment, FaxNumber, Recipient, _fax.Account, _server, _userId));
             return true;
 
 #else //Release:: Fax Process
@@ -78,10 +82,10 @@ namespace TDriver {
 
 #if !DEBUG //Directive used here so application can be debugged and tested on a machine WITHOUT the RFCOMAPI.dll
 
-        /// <summary>
-        ///     Setup RightFax server connection.
-        /// </summary>
-        /// <returns></returns>
+    /// <summary>
+    ///     Setup RightFax server connection.
+    /// </summary>
+    /// <returns></returns>
         private FaxServer SetupRightFaxServer() {
             var faxsvr = new FaxServer {
                 ServerName = _server,

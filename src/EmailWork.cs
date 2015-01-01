@@ -26,13 +26,9 @@ namespace TDriver {
             
         }
 
-        public override AP_Document DocObject {
-            get { return _email; }
-        }
+        public override AP_Document DocObject => _email;
 
-        public string Attachment {
-            get { return _email.FileToSend; }
-        }
+        public string Attachment => _email.FileToSend;
 
         public override bool Process() {
 #if DEBUG //Allow simulating

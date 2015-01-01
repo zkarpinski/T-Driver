@@ -5,9 +5,9 @@ using System.Timers;
 
 namespace TDriver {
     public class Watcher {
-        private readonly WorkQueue _WorkQueue;
         private readonly int _fileDelay;
         private readonly FileSystemWatcher _watcher;
+        private readonly WorkQueue _workQueue;
 
         /// <summary>
         ///     Create a new watcher for every folder we want to monitor.
@@ -19,7 +19,7 @@ namespace TDriver {
         public Watcher(string sPath, AP_Subsection folderSubsection, ref WorkQueue workQueue, int delay) {
             try {
                 _fileDelay = delay;
-                _WorkQueue = workQueue;
+                _workQueue = workQueue;
                 //Check if the directory exists.
                 if (!Directory.Exists(sPath)) {
                     //Form.LogError(sPath + " does not exist!");
@@ -55,7 +55,7 @@ namespace TDriver {
             //BUG check for resource usage for high volume of undisposed timers.
             var aTimer = new Timer((double) _fileDelay*1000) {AutoReset = false};
 
-            aTimer.Elapsed += (sender, e) => _WorkQueue.FoundFileCheck(file, fileSubsection);
+            aTimer.Elapsed += (sender, e) => _workQueue.FoundFileCheck(file, fileSubsection);
             aTimer.Enabled = true;
         }
 

@@ -6,12 +6,14 @@ using System.Reflection;
 using System.Windows.Forms;
 using IniParser;
 using IniParser.Model;
+using RFCOMAPILib;
 
 namespace TDriver {
     public struct AP_Subsection {
         //Constants
-        const string defaultRightFaxComment = "Sent via T-Driver";
-
+        private const string DEFAULT_RIGHT_FAX_COMMENT = "Sent via T-Driver";
+        //Optional Fields
+        public readonly string FaxComment;
         //Required fields
         public readonly string MoveFolder;
         public readonly string Name;
@@ -20,17 +22,11 @@ namespace TDriver {
         public readonly string Server;
         public readonly string UserId;
         public readonly string WatchFolder;
-        //public readonly DocumentType DocType;
-
-        //Optional Fields
-        public readonly string FaxComment;
-
         //Internal options.
         public bool DisableEmail;
         public bool DisableFax;
         public bool DisableMail;
         public bool IsValid;
-
 
         public AP_Subsection(SectionData section) {
             //Default Settings
@@ -49,9 +45,8 @@ namespace TDriver {
             MoveFolder = section.Keys["MoveFolder"];
             SendEmailFrom = section.Keys["SendEmailFrom"];
             //Default to the default Rightfax comment if one is not defined.
-            FaxComment = section.Keys["RightFaxComment"];
-            if (FaxComment == null)
-                FaxComment = defaultRightFaxComment;
+            FaxComment = section.Keys["RightFaxComment"] ?? String.Format("{0} {1}",DEFAULT_RIGHT_FAX_COMMENT, Settings.AppVersion.ToString());
+            
 
             /* User defined document type
             string tempDoctype = section.Keys["DocumentType"];
@@ -59,7 +54,6 @@ namespace TDriver {
                 DocType = (DocumentType) Enum.Parse(typeof(DocumentType), section.Keys["DocumentType"], true);
             }
             */
-
         }
     }
 
@@ -67,7 +61,6 @@ namespace TDriver {
     internal static class Settings {
         public const short MAX_WATCHLIST_SIZE = 10; //Maximum number of folders to add to WatchList
         private const short MIN_FILE_DELAY_TIME = 1;
-
         public static String DatabaseFile;
         public static String ErrorLogfile;
         public static string EmailMsg;
@@ -78,7 +71,11 @@ namespace TDriver {
         public static List<AP_Subsection> WatchList;
         private static IniData _iniData;
 
+        public static Version AppVersion;
+
         public static void Setup(String settingsIni) {
+            AppVersion = Assembly.GetExecutingAssembly().GetName().Version;
+
             var iniFileParser = new FileIniDataParser();
             iniFileParser.Parser.Configuration.CommentString = "#";
             _iniData = iniFileParser.ReadFile(settingsIni);
@@ -110,7 +107,7 @@ namespace TDriver {
         /// </summary>
         /// <param name="infoString"></param>
         private static void ShowSettingsFileError(string infoString) {
-            const string msgboxTitle = "Error with the settings file.";
+            const string msgboxTitle = "Error with the settings file!";
             const string instructions =
                 "Please verify the settings.ini file is correct and properly formated. Otherwise delete the file and run again to generate a template.";
 
@@ -124,7 +121,9 @@ namespace TDriver {
         private static void SetupWatchLists() {
             foreach (
                 AP_Subsection newSubsection in
-                    from section in _iniData.Sections where section.SectionName != "General" select new AP_Subsection(section)
+                    from section in _iniData.Sections
+                    where section.SectionName != "General"
+                    select new AP_Subsection(section)
                 ) {
                 WatchList.Add(newSubsection);
             }
@@ -133,18 +132,17 @@ namespace TDriver {
         /// <summary>
         ///     Create the settings template from the template stored within the executable
         /// </summary>
-        public static void CreateSettingsTemplate(string settingsFile)
-        {
+        public static void CreateSettingsTemplate(string settingsFile) {
             Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("TDriver.Settings.ini");
             // Null value check
             if (stream == null) {
                 ShowSettingsFileError("Error generating template Settings.ini.");
                 return;
             }
-            
+
             //Copy the internal template to the application's folder.
-            var fileStream = new FileStream(settingsFile, FileMode.CreateNew);
-            for (int i = 0; i < stream.Length; i++)
+            FileStream fileStream = new FileStream(settingsFile, FileMode.CreateNew);
+            for (var i = 0; i < stream.Length; i++)
                 fileStream.WriteByte((byte) stream.ReadByte());
             fileStream.Close();
 

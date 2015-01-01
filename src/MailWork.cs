@@ -10,9 +10,8 @@ namespace TDriver {
             _mail = mail;
         }
 
-        public override AP_Document DocObject {
-            get { return _mail; }
-        }
+        public override AP_Document DocObject => _mail;
+
         public string FileToPrint {
             get { return _mail.FileToSend; }
         }

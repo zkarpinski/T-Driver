@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 
@@ -31,14 +32,44 @@ namespace TDriver {
 
             InitializeComponent();
 
+            //Clear example data from UI.
+            listFoldersWatched.Items.Clear();
+            listFoldersWatched.Size = new Size(this.Width - 16, this.Height - 110);
+
             //Load the settings or generate if it doesn't exist.
             string settingsFile = Application.StartupPath + @"\Settings.ini";
             if (File.Exists(settingsFile)) {
                 Settings.Setup(settingsFile);
+                SetupWatchFolderListview();
             }
             else {
                 Settings.CreateSettingsTemplate(settingsFile);
             }
+        }
+
+        /// <summary>
+        /// Fills and resizes the WatchFolderListview
+        /// </summary>
+        private void SetupWatchFolderListview() {
+            Settings.WatchList.ForEach(delegate(AP_Subsection subSection) {
+                // ListView Column Order: Server, UserID, WatchFolder, MoveFolder
+                ListViewItem lvi = new ListViewItem(subSection.Name) {
+                    SubItems = {subSection.Server, subSection.UserId, subSection.WatchFolder, subSection.MoveFolder,},
+                    Tag = subSection
+                };
+                if (subSection.IsValid == false) {
+                    lvi.ForeColor = Color.Red;
+                }
+
+                listFoldersWatched.Items.Add(lvi);
+            });
+
+            //Resize the columns
+            listFoldersWatched.Columns[0].Width = -2; // Name
+            listFoldersWatched.Columns[1].Width = -2; // Server
+            listFoldersWatched.Columns[2].Width = -2; // User Id
+            listFoldersWatched.Columns[3].Width = -2; // Watch Folder
+            listFoldersWatched.Columns[4].Width = -2; // Move Folder
         }
 
         #region UI Interaction
@@ -111,9 +142,9 @@ namespace TDriver {
                 //notifyIcon1.ShowBalloonTip(50);
                 //ShowInTaskbar = false;
             }
-
+            // Resize the list view
             else if (FormWindowState.Normal == WindowState) {
-                //ShowInTaskbar = true;
+                listFoldersWatched.Size = new Size(this.Width - 16, this.Height - 110);
             }
         }
 

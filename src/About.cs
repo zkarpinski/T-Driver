@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
@@ -11,8 +12,6 @@ namespace TDriver {
             labelProductName.Text = AssemblyProduct;
             labelVersion.Text = String.Format("Version {0}", AssemblyVersion);
             labelCopyright.Text = AssemblyCopyright;
-            labelCompanyName.Text = AssemblyCompany;
-            textBoxDescription.Text = AssemblyDescription;
         }
 
         #region Assembly Attribute Accessors
@@ -33,17 +32,6 @@ namespace TDriver {
 
         public string AssemblyVersion {
             get { return Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
-        }
-
-        public string AssemblyDescription {
-            get {
-                object[] attributes =
-                    Assembly.GetExecutingAssembly().GetCustomAttributes(typeof (AssemblyDescriptionAttribute), false);
-                if (attributes.Length == 0) {
-                    return "";
-                }
-                return ((AssemblyDescriptionAttribute) attributes[0]).Description;
-            }
         }
 
         public string AssemblyProduct {
@@ -68,17 +56,6 @@ namespace TDriver {
             }
         }
 
-        public string AssemblyCompany {
-            get {
-                object[] attributes =
-                    Assembly.GetExecutingAssembly().GetCustomAttributes(typeof (AssemblyCompanyAttribute), false);
-                if (attributes.Length == 0) {
-                    return "";
-                }
-                return ((AssemblyCompanyAttribute) attributes[0]).Company;
-            }
-        }
-
         #endregion
 
         private void okButton_Click(object sender, EventArgs e) {
@@ -87,6 +64,10 @@ namespace TDriver {
 
         private void About_Load(object sender, EventArgs e) {
 
+        }
+
+        private void labelCompanyName_Click(object sender, EventArgs e) {
+            Process.Start("mailto:Zachary.Karpinski@nationalgrid.com?subject=TDriver");
         }
     }
 }

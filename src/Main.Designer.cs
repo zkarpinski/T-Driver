@@ -32,6 +32,11 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
+            "Example1",
+            "T"}, -1);
+            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("Example2");
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem("Example3");
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tslblStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
@@ -47,6 +52,12 @@
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.listFoldersWatched = new System.Windows.Forms.ListView();
+            this.cName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.cServer = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.cUserId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.cFolderWatched = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.cMoveFolder = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -58,9 +69,9 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tslblStatus,
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 222);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 265);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(327, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(665, 22);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -74,7 +85,7 @@
             // 
             this.toolStripStatusLabel1.Font = new System.Drawing.Font("Segoe UI", 7F);
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(242, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(611, 17);
             this.toolStripStatusLabel1.Spring = true;
             this.toolStripStatusLabel1.Text = "Created By: Zachary Karpinski";
             // 
@@ -86,7 +97,7 @@
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(327, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(665, 24);
             this.menuStrip1.TabIndex = 3;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -122,7 +133,7 @@
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.aboutToolStripMenuItem.Text = "&About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -133,7 +144,7 @@
             this.tbtnStop});
             this.toolStrip1.Location = new System.Drawing.Point(0, 24);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(327, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(665, 25);
             this.toolStrip1.TabIndex = 2;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -182,12 +193,54 @@
             this.exitToolStripMenuItem.Text = "E&xit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitMenuItem_Click);
             // 
+            // listFoldersWatched
+            // 
+            this.listFoldersWatched.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.cName,
+            this.cServer,
+            this.cUserId,
+            this.cFolderWatched,
+            this.cMoveFolder});
+            this.listFoldersWatched.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
+            listViewItem1,
+            listViewItem2,
+            listViewItem3});
+            this.listFoldersWatched.Location = new System.Drawing.Point(0, 52);
+            this.listFoldersWatched.Name = "listFoldersWatched";
+            this.listFoldersWatched.Size = new System.Drawing.Size(674, 215);
+            this.listFoldersWatched.TabIndex = 4;
+            this.listFoldersWatched.UseCompatibleStateImageBehavior = false;
+            this.listFoldersWatched.View = System.Windows.Forms.View.Details;
+            // 
+            // cName
+            // 
+            this.cName.Text = "Name";
+            // 
+            // cServer
+            // 
+            this.cServer.Text = "Server";
+            this.cServer.Width = 76;
+            // 
+            // cUserId
+            // 
+            this.cUserId.Text = "User";
+            // 
+            // cFolderWatched
+            // 
+            this.cFolderWatched.Text = "Watch Folder";
+            this.cFolderWatched.Width = 89;
+            // 
+            // cMoveFolder
+            // 
+            this.cMoveFolder.Text = "Move Folder";
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(327, 244);
+            this.ClientSize = new System.Drawing.Size(665, 287);
+            this.Controls.Add(this.listFoldersWatched);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
@@ -226,6 +279,12 @@
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.ListView listFoldersWatched;
+        private System.Windows.Forms.ColumnHeader cName;
+        private System.Windows.Forms.ColumnHeader cFolderWatched;
+        private System.Windows.Forms.ColumnHeader cMoveFolder;
+        private System.Windows.Forms.ColumnHeader cServer;
+        private System.Windows.Forms.ColumnHeader cUserId;
     }
 }
 

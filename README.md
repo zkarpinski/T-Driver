@@ -1,7 +1,7 @@
 T-Driver
 ========
 
-Download the latest compiled version [Here](http://zacharykarpinski.com/projects/tdriver/TDriverlLatest.zip)
+Download the latest compiled version [Here](http://zacharykarpinski.com/projects/tdriver/TDriver_latest.zip)
 
 ![Running](http://zacharykarpinski.com/projects/tdriver/img/tdriver_running.png "T-Driver while running.")
 
@@ -32,8 +32,8 @@ A tool designed to automate the T: Drive with functions such as faxing, emailing
 * [.Net Framework v4.0](http://www.microsoft.com/en-us/download/details.aspx?id=17851)
 * RightFax RFCOMAPI.dll
 * [Office 2003 Update: Redistributable Primary Interop](http://support.microsoft.com/kb/897646)
-* [Ini File Parser] (https://github.com/rickyah/ini-parser) _Included_
-* [FileWatcherEx] (http://www.codeproject.com/Articles/58740/FileSystemWatcher-Pure-Chaos-Part-of) _Included_
+* [Ini File Parser] (https://github.com/rickyah/ini-parser) __Included__
+* [FileWatcherEx] (http://www.codeproject.com/Articles/58740/FileSystemWatcher-Pure-Chaos-Part-of) __Included__
 
 
 ##Coming Soon...

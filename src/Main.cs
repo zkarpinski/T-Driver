@@ -90,30 +90,39 @@ namespace TDriver {
             _dpaWorkQueue.StartQWorker();
 
             foreach (AP_Subsection subsection in Settings.WatchList) {
+                if (subsection.IsValid == false) continue;
                 //Queue Existing Files in the folder
                 _dpaWorkQueue.QueueDirectory(subsection.WatchFolder, subsection);
 
                 //Setup watcher for the folder.
                 if (_firstRun) {
-                    _folderWatchList.Add(new Watcher(subsection.WatchFolder, subsection, ref _dpaWorkQueue,
-                        Settings.FileDelayTime));
-
-                    //TODO Update UI with folders being watched.
+                    if (Directory.Exists(subsection.WatchFolder)) {
+                        _folderWatchList.Add(new Watcher(subsection.WatchFolder, subsection, ref _dpaWorkQueue,
+                            Settings.FileDelayTime));
+                    }
                 }
             }
 
-            //Start each foloder watcher.
-            foreach (Watcher watcher in _folderWatchList) {
-                watcher.Start();
+
+            if (_folderWatchList.Any()) {
+                //Start each folder watcher.
+                foreach (Watcher watcher in _folderWatchList) {
+                    watcher.Start();
+                }
+
+                //Update local variables
+                _firstRun = false;
+
+                //Update UI
+                tbtnStop.Enabled = true;
+                tslblStatus.Text = "Running";
+                tslblStatus.ForeColor = Color.Green;
             }
-
-            //Update local variables
-            _firstRun = false;
-
-            //Update UI
-            tbtnStop.Enabled = true;
-            tslblStatus.Text = "Running";
-            tslblStatus.ForeColor = Color.Green;
+            else {
+                _dpaWorkQueue.StopQWorker();
+                MessageBox.Show("No valid folder watchers. Please check settings and try again.");
+                tbtnStart.Enabled = true;
+            }
         }
 
         private void tbtnStop_Click(object sender, EventArgs e) {

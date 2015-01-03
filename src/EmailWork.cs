@@ -12,10 +12,11 @@ namespace TDriver {
         private readonly string _sendAs;
 
         // email work constructor for work factory
-        public EmailWork(string moveLocation, string origDocument, string sendAs, string eMsg, AP_Document email) : base(moveLocation, origDocument) {
-            this._email = email;
-            this._sendAs = sendAs;
-            this._eMsg = eMsg;
+        public EmailWork(string moveLocation, string origDocument, string sendAs, string eMsg, AP_Document email)
+            : base(moveLocation, origDocument) {
+            _email = email;
+            _sendAs = sendAs;
+            _eMsg = eMsg;
         }
 
         //Deprecated
@@ -23,7 +24,6 @@ namespace TDriver {
             _email = eEmail;
             _sendAs = subsection.SendEmailFrom;
             MoveLocation = subsection.MoveFolder;
-            
         }
 
         public override AP_Document DocObject => _email;
@@ -32,19 +32,20 @@ namespace TDriver {
 
         public override bool Process() {
 #if DEBUG //Allow simulating
-    //Debug result :: Email Success.
-    _email.AddSentTime();
-            Debug.WriteLine(String.Format("Emailed {0} to {1} for {2} with account {3} using Email:{4}.", Attachment, _email.SendTo, _email.CustomerName, _email.Account, _sendAs));
+            //Debug result :: Email Success.
+            _email.AddSentTime();
+            Debug.WriteLine(String.Format("Emailed {0} to {1} for {2} with account {3} using Email:{4}.", Attachment,
+                _email.SendTo, _email.CustomerName, _email.Account, _sendAs));
             return true;
-            
+
             //if (!CreatePdfToSend()) return false;
             //Send email
-           // return SendEmail();
+            // return SendEmail();
 
 
 #else
-            //Release: Does NOT processs
-            //Todo: Get working consistantly
+    //Release: Does NOT processs
+    //Todo: Get working consistantly
             return false;
 
 #endif

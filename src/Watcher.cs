@@ -2,11 +2,12 @@
 using System.Diagnostics;
 using System.IO;
 using System.Timers;
+using FileSystemWatcherEx;
 
 namespace TDriver {
     public class Watcher {
         private readonly int _fileDelay;
-        private readonly FileSystemWatcher _watcher;
+        private readonly WatcherEx _watcher;
         private readonly WorkQueue _workQueue;
 
         /// <summary>
@@ -22,15 +23,27 @@ namespace TDriver {
                 _workQueue = workQueue;
                 //Check if the directory exists.
                 if (!Directory.Exists(sPath)) {
-                    //Form.LogError(sPath + " does not exist!");
+                    Logger.AddError(Settings.ErrorLogfile,sPath + " does not exist!");
                     return;
                 }
 
-                // Watch the directory for new word documents.
-                _watcher = new FileSystemWatcher(sPath, "*.doc") {
-                    NotifyFilter = NotifyFilters.FileName
+                // Setup the watcher info.
+                WatcherInfo wInfo = new WatcherInfo {
+                    ChangesFilters = NotifyFilters.CreationTime |
+                                     NotifyFilters.FileName |
+                                     NotifyFilters.Size,
+                    IncludeSubFolders = false,
+                    WatchesFilters = WatcherChangeTypes.Created,
+                    WatchForDisposed = true,
+                    WatchForError = false,
+                    WatchPath = sPath, //Path to Watch
+                    BufferKBytes = 8, //Default Buffer
+                    MonitorPathInterval = 2*60*1000 //Check folder availability every two minutes.
                 };
-                _watcher.Created += (sender, e) => NewFileCreated(e.FullPath, folderSubsection);
+
+                // Watch the directory for new word documents.
+                _watcher = new WatcherEx(wInfo);
+                _watcher.EventCreated += (sender, e) => NewFileCreated(((FileSystemEventArgs) (e.Arguments)).FullPath, folderSubsection);
             }
             catch (Exception ex) {
                 Debug.WriteLine(ex.Message);
@@ -50,7 +63,7 @@ namespace TDriver {
             }
 
             Debug.WriteLine("New File detected!");
-            //An artifical wait to handle duplicate file creations bug from our web application.
+            // An artifical wait to handle duplicate file creations bug from our web application.
             // Multiple FileDelay by 1000 to get milliseconds.
             //BUG check for resource usage for high volume of undisposed timers.
             var aTimer = new Timer((double) _fileDelay*1000) {AutoReset = false};
@@ -60,11 +73,11 @@ namespace TDriver {
         }
 
         public void Stop() {
-            _watcher.EnableRaisingEvents = false;
+            _watcher.Stop();
         }
 
         public void Start() {
-            _watcher.EnableRaisingEvents = true;
+            _watcher.Start();
         }
 
         public void Dispose() {

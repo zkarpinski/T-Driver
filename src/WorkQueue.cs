@@ -6,6 +6,17 @@ using System.Linq;
 using System.Threading;
 
 namespace TDriver {
+    public class WorkCompleteEventArgs {
+        public WorkCompleteEventArgs(Work work) {
+            Subsection = work.SubSection;
+            DocType = work.DocType;
+            SentTo = work.DocObject.SendTo;
+        }
+        public String Subsection { get; private set; }
+        public DocumentType DocType { get; private set; } 
+        public String  SentTo { get; private set; }
+    }
+
     public sealed class WorkQueue : IDisposable {
         /// <summary>
         ///     http://social.msdn.microsoft.com/forums/vstudio/en-US/500cb664-e2ca-4d76-88b9-0faab7e7c443/queuing-backgroundworker-tasks
@@ -17,7 +28,6 @@ namespace TDriver {
         private readonly WorkListConnection _wlConnection;
 
         private Thread _queueWorker;
-
         private Boolean _quitWork;
 
         public WorkQueue(string databaseFile) {
@@ -59,8 +69,6 @@ namespace TDriver {
 
             else {
                 Debug.WriteLine(doc.Account + " was skipped.");
-                doc = null;
-                return;
             }
         }
 
@@ -121,7 +129,7 @@ namespace TDriver {
 
                     //Process if there is work to do.
                     if (dequeuedWork != null) {
-                        Debug.WriteLine("Working");
+                        Debug.WriteLine("Working...");
                         if (dequeuedWork.Process()) {
                             _wlConnection.Add(dequeuedWork.DocObject);
                             //Todo Handle failed database connection.

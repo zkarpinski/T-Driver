@@ -20,6 +20,7 @@ namespace TDriver {
             _server = subsection.Server;
             _comment = subsection.FaxComment;
             this.Recipient = recipient;
+            this.SubSection = subsection.Name;
         }
 
         public FaxWork(AP_Document fax, AP_Subsection subsection) : base(subsection.MoveFolder, fax.Document) {
@@ -27,7 +28,8 @@ namespace TDriver {
             _userId = subsection.UserId;
             _server = subsection.Server;
             _comment = subsection.FaxComment;
-            this.Recipient = fax.CustomerName;
+            this.Recipient = fax.SendTo;
+            this.SubSection = subsection.Name;
         }
 
         public override AP_Document DocObject => _fax;

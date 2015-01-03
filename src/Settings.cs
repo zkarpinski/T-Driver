@@ -46,14 +46,19 @@ namespace TDriver {
             SendEmailFrom = section.Keys["SendEmailFrom"];
             //Default to the default Rightfax comment if one is not defined.
             FaxComment = section.Keys["RightFaxComment"] ?? String.Format("{0} {1}",DEFAULT_RIGHT_FAX_COMMENT, Settings.AppVersion.ToString());
-            
 
-            /* User defined document type
-            string tempDoctype = section.Keys["DocumentType"];
-            if (Enum.TryParse(tempDoctype, true, out DocType)) {
-                DocType = (DocumentType) Enum.Parse(typeof(DocumentType), section.Keys["DocumentType"], true);
+            if (!Directory.Exists(WatchFolder)) {
+                IsValid = false;
             }
-            */
+            if (!Directory.Exists(MoveFolder)) {
+                IsValid = false;
+            }
+            /* User defined document type
+                string tempDoctype = section.Keys["DocumentType"];
+                if (Enum.TryParse(tempDoctype, true, out DocType)) {
+                    DocType = (DocumentType) Enum.Parse(typeof(DocumentType), section.Keys["DocumentType"], true);
+                }
+                */
         }
     }
 

@@ -1,21 +1,15 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
 
+#endregion
+
 namespace TDriver {
-    public class WorkCompleteEventArgs {
-        public WorkCompleteEventArgs(Work work) {
-            Subsection = work.SubSection;
-            DocType = work.DocType;
-            SentTo = work.DocObject.SendTo;
-        }
-        public String Subsection { get; private set; }
-        public DocumentType DocType { get; private set; } 
-        public String  SentTo { get; private set; }
-    }
 
     public sealed class WorkQueue : IDisposable {
         /// <summary>
@@ -23,10 +17,9 @@ namespace TDriver {
         /// </summary>
         private readonly EventWaitHandle _doQWork = new EventWaitHandle(false, EventResetMode.ManualReset);
 
+        private readonly WorkListConnection _wlConnection;
         private readonly Queue<Work> _workQueue = new Queue<Work>(50);
         private readonly Object _zLock = new object();
-        private readonly WorkListConnection _wlConnection;
-
         private Thread _queueWorker;
         private Boolean _quitWork;
 
@@ -72,7 +65,6 @@ namespace TDriver {
             }
         }
 
-
         /// <summary>
         ///     Locks the queue and adds the new work.
         /// </summary>
@@ -98,7 +90,6 @@ namespace TDriver {
                 }
             }
         }
-
 
         /// <summary>
         ///     Background Thread function

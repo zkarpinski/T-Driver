@@ -1,16 +1,18 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.IO;
 using System.Threading;
 using CDO;
 using Microsoft.Office.Interop.Word;
-using System.Diagnostics;
+
+#endregion
 
 namespace TDriver {
     public class EmailWork : Work {
-        private readonly string _eMsg;
         private readonly AP_Document _email;
+        private readonly string _eMsg;
         private readonly string _sendAs;
-
         // email work constructor for work factory
         public EmailWork(string moveLocation, string origDocument, string sendAs, string eMsg, AP_Document email)
             : base(moveLocation, origDocument) {
@@ -28,11 +30,13 @@ namespace TDriver {
 
         public override AP_Document DocObject => _email;
 
-        public string Attachment => _email.FileToSend;
+        public string Attachment {
+            get { return _email.FileToSend; }
+        }
 
         public override bool Process() {
 #if DEBUG //Allow simulating
-            //Debug result :: Email Success.
+    //Debug result :: Email Success.
             _email.AddSentTime();
             Debug.WriteLine(String.Format("Emailed {0} to {1} for {2} with account {3} using Email:{4}.", Attachment,
                 _email.SendTo, _email.CustomerName, _email.Account, _sendAs));
@@ -44,8 +48,8 @@ namespace TDriver {
 
 
 #else
-    //Release: Does NOT processs
-    //Todo: Get working consistantly
+            //Release: Does NOT processs
+            //Todo: Get working consistantly
             return false;
 
 #endif

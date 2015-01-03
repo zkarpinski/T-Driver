@@ -4,7 +4,7 @@ using System.IO;
 
 namespace TDriver {
     internal static class Logger {
-        public static int ErrorCount = 0;
+        public static int ErrorCount;
 
         /// <summary>
         ///     Add data to Comma Seperated Values file for data collecting.

@@ -48,7 +48,7 @@ namespace TDriver {
         }
 
         /// <summary>
-        /// Fills and resizes the WatchFolderListview
+        ///     Fills and resizes the WatchFolderListview
         /// </summary>
         private void SetupWatchFolderListview() {
             Settings.WatchList.ForEach(delegate(AP_Subsection subSection) {
@@ -89,6 +89,7 @@ namespace TDriver {
             //Start the DPA Queue Worker
             _dpaWorkQueue.StartQWorker();
 
+            //Queue Directories and create the watchers if first run.
             foreach (AP_Subsection subsection in Settings.WatchList) {
                 if (subsection.IsValid == false) continue;
                 //Queue Existing Files in the folder
@@ -103,9 +104,8 @@ namespace TDriver {
                 }
             }
 
-
+            //Start each folder watcher.
             if (_folderWatchList.Any()) {
-                //Start each folder watcher.
                 foreach (Watcher watcher in _folderWatchList) {
                     watcher.Start();
                 }

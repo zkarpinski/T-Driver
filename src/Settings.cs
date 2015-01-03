@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Windows.Forms;
 using IniParser;
 using IniParser.Model;
-using RFCOMAPILib;
 
 namespace TDriver {
     public struct AP_Subsection {
@@ -45,7 +44,8 @@ namespace TDriver {
             MoveFolder = section.Keys["MoveFolder"];
             SendEmailFrom = section.Keys["SendEmailFrom"];
             //Default to the default Rightfax comment if one is not defined.
-            FaxComment = section.Keys["RightFaxComment"] ?? String.Format("{0} {1}",DEFAULT_RIGHT_FAX_COMMENT, Settings.AppVersion.ToString());
+            FaxComment = section.Keys["RightFaxComment"] ??
+                         String.Format("{0} {1}", DEFAULT_RIGHT_FAX_COMMENT, Settings.AppVersion.ToString());
 
             if (!Directory.Exists(WatchFolder)) {
                 IsValid = false;
@@ -75,7 +75,6 @@ namespace TDriver {
         public static Int16 FileDelayTime;
         public static List<AP_Subsection> WatchList;
         private static IniData _iniData;
-
         public static Version AppVersion;
 
         public static void Setup(String settingsIni) {

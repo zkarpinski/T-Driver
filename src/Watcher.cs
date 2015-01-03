@@ -23,7 +23,7 @@ namespace TDriver {
                 _workQueue = workQueue;
                 //Check if the directory exists.
                 if (!Directory.Exists(sPath)) {
-                    Logger.AddError(Settings.ErrorLogfile,sPath + " does not exist!");
+                    Logger.AddError(Settings.ErrorLogfile, sPath + " does not exist!");
                     return;
                 }
 
@@ -43,7 +43,8 @@ namespace TDriver {
 
                 // Watch the directory for new word documents.
                 _watcher = new WatcherEx(wInfo);
-                _watcher.EventCreated += (sender, e) => NewFileCreated(((FileSystemEventArgs) (e.Arguments)).FullPath, folderSubsection);
+                _watcher.EventCreated +=
+                    (sender, e) => NewFileCreated(((FileSystemEventArgs) (e.Arguments)).FullPath, folderSubsection);
             }
             catch (Exception ex) {
                 Debug.WriteLine(ex.Message);

@@ -82,6 +82,7 @@ namespace TDriver {
 
             var iniFileParser = new FileIniDataParser();
             iniFileParser.Parser.Configuration.CommentString = "#";
+            //Todo handle two or more sections with same name.
             _iniData = iniFileParser.ReadFile(settingsIni);
 
             //Load the general section variables

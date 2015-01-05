@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using CDO;
@@ -48,8 +49,8 @@ namespace TDriver {
 
 
 #else
-            //Release: Does NOT processs
-            //Todo: Get working consistantly
+            //Release: Does NOT process
+            //Todo: Get it working consistently
             return false;
 
 #endif
@@ -66,9 +67,9 @@ namespace TDriver {
 
                 //Open the DPA Document with options:
                 //  Don't confirm conversion from RTF to doc
-                //  Open as readonly
+                //  Open as read-only
                 //  Don't add to recent list
-                _Document oDoc = wApp.Documents.Open(_email.Document, false, true, false); //readonly,
+                _Document oDoc = wApp.Documents.Open(_email.Document, false, true, false); //read only,
                 oDoc.PrintOut(false); //Printout NOT async(background)
 
                 //Changes the default printer back
@@ -103,7 +104,7 @@ namespace TDriver {
         }
 
         /// <summary>
-        ///     Creates and sends an email using the data from email dpa-type field.
+        ///     Creates and sends an email using the data from email field.
         /// </summary>
         /// <returns>Success or Fail.</returns>
         private bool SendEmail() {

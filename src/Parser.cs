@@ -9,7 +9,7 @@ namespace TDriver {
         private RTFDomDocument _doc;
 
         //Loads the desired file into the parser.
-        //Todo Finish the loading files int parser idea.
+        //TODO Finish the loading files int parser idea.
         // where each item is a method.
         public bool Load(string file, DocumentType docType) {
             LoadedFiletype = docType;
@@ -48,7 +48,7 @@ namespace TDriver {
             if (cmeDoc.Elements.OfType<RTFDomTable>().Count() == 2) {
                 RTFDomTable[] docTables = cmeDoc.Elements.OfType<RTFDomTable>().ToArray();
 
-                //Doctor Specfic Information
+                //Doctor Specific Information
                 //1st table.
                 RTFDomElementList drTableRows = docTables[0].Elements;
                 String drName = DataScrubber(drTableRows[1].Elements[0].InnerText.Replace("To: ", String.Empty));
@@ -56,7 +56,7 @@ namespace TDriver {
                 String drPhoneNumber = DataScrubber(drTableRows[3].Elements[0].InnerText.Replace("Phone Number:", String.Empty));
                 String drFaxNumber = DataScrubber(drTableRows[4].Elements[0].InnerText.Replace("Fax Number: ", String.Empty));
 
-                //Customer Specfic Information
+                //Customer Specific Information
                 //2nd table.
                 RTFDomElementList custTableRows = docTables[1].Elements;
                 String accountHolder = DataScrubber(custTableRows[0].Elements[1].InnerText);

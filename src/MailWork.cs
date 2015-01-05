@@ -1,4 +1,7 @@
-﻿namespace TDriver {
+﻿using System;
+using System.Diagnostics;
+
+namespace TDriver {
     //TODO Design mail work.
     public class MailWork : Work {
         private readonly AP_Document _mail;
@@ -9,9 +12,7 @@
 
         public override AP_Document DocObject => _mail;
 
-        public string FileToPrint {
-            get { return _mail.FileToSend; }
-        }
+        public string FileToPrint => _mail.FileToSend;
 
         public override bool Process() {
 #if DEBUG //Allow simulating

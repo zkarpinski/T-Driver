@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+
 #if !DEBUG
 using RFCOMAPILib;
 
@@ -11,6 +13,16 @@ namespace TDriver {
         private readonly string _server;
         private readonly string _userId;
 
+        /// <summary>
+        /// Fax work constructor used by both Medicals and DPAs from the WorkFactory.
+        /// </summary>
+        /// <param name="moveLocation"></param>
+        /// <param name="origDocument"></param>
+        /// <param name="faxNumber"></param>
+        /// <param name="recipient"></param>
+        /// <param name="fileToSend"></param>
+        /// <param name="fax">Document object</param>
+        /// <param name="subsection"></param>
         public FaxWork(string moveLocation, string origDocument, string faxNumber, string recipient, string fileToSend,
             AP_Document fax, AP_Subsection subsection) : base(moveLocation, origDocument) {
             _fax = fax;
@@ -21,6 +33,11 @@ namespace TDriver {
             this.SubSection = subsection.Name;
         }
 
+        /// <summary>
+        /// Fax constructor (Deprecated)
+        /// </summary>
+        /// <param name="fax"></param>
+        /// <param name="subsection"></param>
         public FaxWork(AP_Document fax, AP_Subsection subsection) : base(subsection.MoveFolder, fax.Document) {
             _fax = fax;
             _userId = subsection.UserId;
@@ -43,7 +60,7 @@ namespace TDriver {
         }
 
         public override Boolean Process() {
-            //Verify the fax meets critera.
+            //Verify the fax meets criteria.
             //TODO Add a Validate function to Fax class
             if (!_fax.IsValid) return false;
 

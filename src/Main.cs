@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace TDriver {
     public partial class Main : Form {
-        private WorkQueue _dpaWorkQueue;
+        private WorkQueue _docWorkQueue;
         private List<Watcher> _folderWatchList;
 
         public Main() {
@@ -77,31 +77,29 @@ namespace TDriver {
         private Boolean _firstRun = true;
 
         private void tsBtnStart_Click(object sender, EventArgs e) {
-            //Start the watcher
             tbtnStart.Enabled = false;
+            
 
-            // Create the queue and watchlist when its the first time started.
+            // Create the queue and watcher list the first time started it'S.
             if (_firstRun) {
-                _dpaWorkQueue = new WorkQueue(Settings.DatabaseFile);
                 _folderWatchList = new List<Watcher>(Settings.MAX_WATCHLIST_SIZE);
+                _docWorkQueue = new WorkQueue(Settings.DatabaseFile);
+                
             }
 
             //Start the DPA Queue Worker
-            _dpaWorkQueue.StartQWorker();
+            _docWorkQueue.StartQWorker();
 
-            //Queue Directories and create the watchers if first run.
+            //Queue Directories and create the watchers
             foreach (AP_Subsection subsection in Settings.WatchList) {
                 if (subsection.IsValid == false) continue;
-                //Queue Existing Files in the folder
-                _dpaWorkQueue.QueueDirectory(subsection.WatchFolder, subsection);
+                if (Directory.Exists(subsection.WatchFolder)) {
+                    //Queue Existing Files in the folder
+                    _docWorkQueue.QueueDirectory(subsection.WatchFolder, subsection);
 
-                //Setup watcher for the folder.
-                if (_firstRun) {
-                    if (Directory.Exists(subsection.WatchFolder)) {
-                        _folderWatchList.Add(new Watcher(subsection.WatchFolder, subsection, ref _dpaWorkQueue,
-                            Settings.FileDelayTime));
+                    //Setup watcher for the folder.
+                    _folderWatchList.Add(new Watcher(subsection.WatchFolder, subsection, ref _docWorkQueue, Settings.FileDelayTime));
                     }
-                }
             }
 
             //Start each folder watcher.
@@ -119,7 +117,7 @@ namespace TDriver {
                 tslblStatus.ForeColor = Color.Green;
             }
             else {
-                _dpaWorkQueue.StopQWorker();
+                _docWorkQueue.StopQWorker();
                 MessageBox.Show("No valid folder watchers. Please check settings and try again.");
                 tbtnStart.Enabled = true;
             }
@@ -128,15 +126,17 @@ namespace TDriver {
         private void tbtnStop_Click(object sender, EventArgs e) {
             tbtnStop.Enabled = false;
 
-            //Stop each folder watcher
+            //Stop each folder watcher and clear list.
             foreach (Watcher watcher in _folderWatchList) {
                 watcher.Stop();
             }
+            _folderWatchList.Clear();
+
             //Stop DPA Queue Worker
-            _dpaWorkQueue.StopQWorker();
+            _docWorkQueue.StopQWorker();
 
             //Update UI
-            Debug.WriteLine("Poll haulted.");
+            Debug.WriteLine("Watchers halted.");
             tslblStatus.Text = "Stopped";
             tslblStatus.ForeColor = Color.DarkRed;
             tbtnStart.Enabled = true;
@@ -144,10 +144,10 @@ namespace TDriver {
 
 
         private void frmMain_Resize(object sender, EventArgs e) {
-            // Minimize to traybar. (Taskbar is very crowded at work)
+            // Minimize to tray bar. (Task-bar is very crowded at work)
             if (FormWindowState.Minimized == WindowState) {
                 notifyIcon1.BalloonTipTitle = "T: Driver";
-                notifyIcon1.BalloonTipText = "Minimized to traybar.";
+                notifyIcon1.BalloonTipText = "Minimized to tray bar.";
                 //notifyIcon1.ShowBalloonTip(50);
                 //ShowInTaskbar = false;
             }
@@ -175,5 +175,22 @@ namespace TDriver {
         }
 
         #endregion
+
+        private void MainFormClosing(object sender, FormClosingEventArgs e) {
+            if (_folderWatchList  != null) {
+                //Stop each folder watcher and clear list.
+                foreach (Watcher watcher in _folderWatchList) {
+                    watcher.Stop();
+                }
+                _folderWatchList.Clear();
+            }
+
+            //Dispose work queue and queue worker.
+            if (_docWorkQueue != null) {
+                if (_docWorkQueue.IsRunning)
+                    _docWorkQueue.StopQWorker();
+                _docWorkQueue.Dispose();
+            }
+        }
     }
 }

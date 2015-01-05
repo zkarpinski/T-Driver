@@ -5,7 +5,7 @@ namespace TDriver {
         public DPA() {}
 
         /// <summary>
-        ///     Constructer used for Parser
+        ///     Constructor used for Parser
         /// </summary>
         /// <param name="accountNumber"></param>
         /// <param name="sendTo"></param>

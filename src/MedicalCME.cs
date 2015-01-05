@@ -16,7 +16,7 @@
             //ChangeDeliveryType(DeliveryMethodType.Fax);
         }
 
-        //Properties unique to Medcial CMEs
+        //Properties unique to Medical CMEs
         // Some are not used, and are strictly for future reference purposes.
         public override DocumentType DocumentType => DocumentType.CME;
         public string DrFaxNumber => SendTo;

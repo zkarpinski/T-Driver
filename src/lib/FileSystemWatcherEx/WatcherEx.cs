@@ -504,6 +504,9 @@ namespace FileSystemWatcherEx {
 			{
 				DisposeWatchers();
 				Initialize();
+                //Start the watcher again
+                //Added by Zachary Karpinski
+                Start(); 
 			}
 		}
 

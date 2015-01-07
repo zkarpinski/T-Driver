@@ -107,6 +107,7 @@
     <Compile Include="lib\FileSystemWatcherEx\WatcherCommon.cs" />
     <Compile Include="lib\FileSystemWatcherEx\WatcherEx.cs" />
     <Compile Include="lib\FileSystemWatcherEx\WatcherInfo.cs" />
+    <Compile Include="Region.cs" />
     <Compile Include="WorkFactory.cs" />
     <Compile Include="WorkListConnection.cs" />
     <Compile Include="WorkQueue.cs" />

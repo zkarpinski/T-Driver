@@ -134,8 +134,6 @@ namespace TDriver {
                             Debug.WriteLine(dequeuedWork.GetType() + " Completed!");
                         }
                         else {
-                            //TODO Remove this during deployment!!
-                            _wlConnection.Add(dequeuedWork.DocObject);
                             Debug.WriteLine(dequeuedWork.GetType() + " Failed!");
                         }
                     }

@@ -5,14 +5,8 @@ namespace TDriver {
         public DPA() {}
 
         /// <summary>
-        ///     Constructor used for Parser
+        ///    DPA Constructor
         /// </summary>
-        /// <param name="accountNumber"></param>
-        /// <param name="sendTo"></param>
-        /// <param name="customer"></param>
-        /// <param name="serviceAddress"></param>
-        /// <param name="dateOffered"></param>
-        /// <param name="document"></param>
         public DPA(string accountNumber, string sendTo, string customer, string serviceAddress, string dateOffered,
             string document) : base(document) {
             Account = RegexAccount(accountNumber);
@@ -21,10 +15,15 @@ namespace TDriver {
             ServiceAddress = serviceAddress.Replace("Service Address ", String.Empty).Trim();
         }
 
+        //Properties unique to Medical CMEs
         public string KindOfDPA { get; set; }
-
         public override DocumentType DocumentType => DocumentType.DPA;
 
+        /// <summary>
+        /// Remove known generic words from the SendTo cell in the DPA document.
+        /// </summary>
+        /// <param name="sendToField"></param>
+        /// <returns></returns>
         private string CleanSendToField(String sendToField) {
             string[] junkToRemove = {"Email to:", "Mail to:", "Fax to:"};
             foreach (var s in junkToRemove) {
@@ -32,5 +31,6 @@ namespace TDriver {
             }
             return (sendToField.Trim());
         }
+
     }
 }

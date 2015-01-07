@@ -1,10 +1,12 @@
-## T-Drive 1.1   2015-01-05
+## T-Drive 1.1.1   2015-01-07
 
 Features:
 
-  - Visual list of the user defined settings including section name, server name, user id, folder watched and the move folder.
+  - Added Visual list of the user defined settings including section name, server name, user id, folder watched and the move folder.
   - Added support for Medical CME documents.
   - Watchers re-establish after a connection to folder is lost.
+  - Added region specific handles.
+  - CMEs are checked for zip code validity based on region.
 
 Code Changes:
 
@@ -16,6 +18,7 @@ Code Changes:
   - Reworked parser to handle each AP_Document derivatives and return the respective constructed object
   - Used ReSharper to re-factor, cleanup and restructure the solution.
   - Increased work queue size to 100, up from 50.
+  - Added new region class with Regions as static container of each valid region.
   - Spell check =)
   
 

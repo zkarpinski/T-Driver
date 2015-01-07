@@ -15,7 +15,6 @@
                         return new FaxWork(subsection.MoveFolder, medDoc.Document, medDoc.DrFaxNumber, medDoc.DrName,
                             medDoc.FileToSend, doc, subsection);
                     }
-                    else
                         return new FaxWork(subsection.MoveFolder, doc.Document, doc.SendTo, doc.CustomerName,
                             doc.FileToSend, doc, subsection);
                 case DeliveryMethodType.Email: //Email

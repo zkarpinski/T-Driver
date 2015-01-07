@@ -18,7 +18,7 @@ namespace TDriver {
     public static class AP_Factory {
         private static readonly Parser parser = new Parser();
 
-        internal static AP_Document Create(string file, AP_Subsection subsection) {
+        public static AP_Document Create(string file, AP_Subsection subsection) {
             //Determine the document type by checking against the general naming conventions
             DocumentType docType = DetermineDocumentType(file);
             if (docType == DocumentType.ERROR) {
@@ -33,12 +33,25 @@ namespace TDriver {
                 return null;
             }
 
-            //Derived case specific options
-            //DPA
-            //Add the type of DPA.
+            //Manage derived class, specific options
+            //**DPA***
             if (docType == DocumentType.DPA && newApDoc is DPA) {
+                //Add the type of DPA to the class.
                 ((DPA)newApDoc).KindOfDPA = subsection.Name;
             }
+            //**CME***
+            if (docType == DocumentType.CME && newApDoc is MedicalCME) {
+                //Verify the zip code to the specified region.
+                //TODO Add region in settings.
+                if (!((MedicalCME) newApDoc).CheckRegion("UPSTATE")) {
+                    //When the region doesn't match the specified.
+                    //Log it and mark as invalid.
+                    Logger.AddError(Settings.ErrorLogfile, file + " is NOT an " + "UPSTATE" + " zip code. File skipped."  );
+                    return null;
+                }
+
+            }
+
 
             //Determine the delivery method by analyzing the "SendTo" field's contents.
             Tuple<DeliveryMethodType, string> result = DetermineDeliveryMethod(newApDoc.SendTo);
@@ -46,7 +59,6 @@ namespace TDriver {
                 Logger.AddError(Settings.ErrorLogfile, file + " was skipped. Couldn't determine who it's intended for.");
                 return null;
             }
-
 
             //Change the delivery method and update where it's going to.
             newApDoc.ChangeDeliveryType(result.Item1);

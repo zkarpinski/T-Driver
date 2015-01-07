@@ -1,24 +1,29 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
 
+#endregion
+
 namespace TDriver {
+
     public sealed class WorkQueue : IDisposable {
         /// <summary>
         ///     http://social.msdn.microsoft.com/forums/vstudio/en-US/500cb664-e2ca-4d76-88b9-0faab7e7c443/queuing-backgroundworker-tasks
         /// </summary>
         private readonly EventWaitHandle _doQWork = new EventWaitHandle(false, EventResetMode.ManualReset);
 
-        private readonly Queue<Work> _workQueue = new Queue<Work>(50);
-        private readonly Object _zLock = new object();
         private readonly WorkListConnection _wlConnection;
-
+        private readonly Queue<Work> _workQueue = new Queue<Work>(100);
+        private readonly Object _zLock = new object();
         private Thread _queueWorker;
-
         private Boolean _quitWork;
+
+        public Boolean IsRunning { get { return !_quitWork; } }
 
         public WorkQueue(string databaseFile) {
             _wlConnection = new WorkListConnection(databaseFile);
@@ -35,35 +40,35 @@ namespace TDriver {
         public void StopQWorker() {
             _quitWork = true;
             _doQWork.Set();
-            _queueWorker.Join(1000);
+            _queueWorker?.Join(1000);
         }
 
         /// <summary>
-        ///     Starts Queue thread.
+        ///     Starts QueueWorker thread.
         /// </summary>
         public void StartQWorker() {
-            _queueWorker = new Thread(QThread) {IsBackground = true};
+            _queueWorker = new Thread(QWorker) {
+                IsBackground = true, Name = "QueueWorker"
+            };
             _queueWorker.Start();
         }
 
         public void FoundFileCheck(string file, AP_Subsection fileSubsection) {
-            //Create dpa from factory
+            //Create an AP_Document from factory
             AP_Document doc = AP_Factory.Create(file, fileSubsection);
-            if (doc == null) return;
+            if (doc == null) {
+                Logger.AddError(Settings.ErrorLogfile, file + " is not a valid AP Document.");
+                return;
+            }
 
+            //Create work with the Document.
             if (doc.IsValid) {
                 Work work = WorkFactory.Create(doc, fileSubsection);
                 if (work == null) return;
                 AddToQueue(work);
             }
 
-            else {
-                Debug.WriteLine(doc.Account + " was skipped.");
-                doc = null;
-                return;
-            }
         }
-
 
         /// <summary>
         ///     Locks the queue and adds the new work.
@@ -91,12 +96,11 @@ namespace TDriver {
             }
         }
 
-
         /// <summary>
         ///     Background Thread function
         ///     Handles the work queue.
         /// </summary>
-        private void QThread() {
+        private void QWorker() {
             Debug.WriteLine("Thread Started.");
 
             do {
@@ -121,7 +125,7 @@ namespace TDriver {
 
                     //Process if there is work to do.
                     if (dequeuedWork != null) {
-                        Debug.WriteLine("Working");
+                        Debug.WriteLine("Working...");
                         if (dequeuedWork.Process()) {
                             _wlConnection.Add(dequeuedWork.DocObject);
                             //Todo Handle failed database connection.
@@ -130,8 +134,6 @@ namespace TDriver {
                             Debug.WriteLine(dequeuedWork.GetType() + " Completed!");
                         }
                         else {
-                            //TODO Remove this during deployment!!
-                            _wlConnection.Add(dequeuedWork.DocObject);
                             Debug.WriteLine(dequeuedWork.GetType() + " Failed!");
                         }
                     }
@@ -153,7 +155,7 @@ namespace TDriver {
         private void Dispose(bool disposing) {
             if (disposing) {
                 // free managed resources
-                _workQueue?.Clear(); //Check if null with null propergation.
+                _workQueue?.Clear(); //Check if null with null propagation.
             }
         }
     }

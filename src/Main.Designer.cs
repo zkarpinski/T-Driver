@@ -15,8 +15,8 @@
         {
             if (disposing && (components != null))
             {
-                if (_dpaWorkQueue != null)
-                    _dpaWorkQueue.Dispose();
+                if (_docWorkQueue != null)
+                    _docWorkQueue.Dispose();
                 components.Dispose();
             }
             base.Dispose(disposing);
@@ -69,9 +69,9 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tslblStatus,
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 265);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 269);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(665, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(603, 22);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -85,7 +85,7 @@
             // 
             this.toolStripStatusLabel1.Font = new System.Drawing.Font("Segoe UI", 7F);
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(611, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(549, 17);
             this.toolStripStatusLabel1.Spring = true;
             this.toolStripStatusLabel1.Text = "Created By: Zachary Karpinski";
             // 
@@ -97,7 +97,7 @@
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(665, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(603, 24);
             this.menuStrip1.TabIndex = 3;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -133,7 +133,7 @@
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
             this.aboutToolStripMenuItem.Text = "&About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -144,7 +144,7 @@
             this.tbtnStop});
             this.toolStrip1.Location = new System.Drawing.Point(0, 24);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(665, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(603, 25);
             this.toolStrip1.TabIndex = 2;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -207,7 +207,7 @@
             listViewItem3});
             this.listFoldersWatched.Location = new System.Drawing.Point(0, 52);
             this.listFoldersWatched.Name = "listFoldersWatched";
-            this.listFoldersWatched.Size = new System.Drawing.Size(674, 215);
+            this.listFoldersWatched.Size = new System.Drawing.Size(603, 215);
             this.listFoldersWatched.TabIndex = 4;
             this.listFoldersWatched.UseCompatibleStateImageBehavior = false;
             this.listFoldersWatched.View = System.Windows.Forms.View.Details;
@@ -239,7 +239,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(665, 287);
+            this.ClientSize = new System.Drawing.Size(603, 291);
             this.Controls.Add(this.listFoldersWatched);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.statusStrip1);
@@ -249,6 +249,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Main";
             this.Text = "T: Driver";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormClosing);
             this.Resize += new System.EventHandler(this.frmMain_Resize);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();

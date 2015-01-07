@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Windows.Forms;
 using IniParser;
 using IniParser.Model;
-using RFCOMAPILib;
 
 namespace TDriver {
     public struct AP_Subsection {
@@ -45,15 +44,21 @@ namespace TDriver {
             MoveFolder = section.Keys["MoveFolder"];
             SendEmailFrom = section.Keys["SendEmailFrom"];
             //Default to the default Rightfax comment if one is not defined.
-            FaxComment = section.Keys["RightFaxComment"] ?? String.Format("{0} {1}",DEFAULT_RIGHT_FAX_COMMENT, Settings.AppVersion.ToString());
-            
+            FaxComment = section.Keys["RightFaxComment"] ??
+                         String.Format("{0} {1}", DEFAULT_RIGHT_FAX_COMMENT, Settings.AppVersion.ToString());
 
-            /* User defined document type
-            string tempDoctype = section.Keys["DocumentType"];
-            if (Enum.TryParse(tempDoctype, true, out DocType)) {
-                DocType = (DocumentType) Enum.Parse(typeof(DocumentType), section.Keys["DocumentType"], true);
+            if (!Directory.Exists(WatchFolder)) {
+                IsValid = false;
             }
-            */
+            if (!Directory.Exists(MoveFolder)) {
+                IsValid = false;
+            }
+            /* User defined document type
+                string tempDoctype = section.Keys["DocumentType"];
+                if (Enum.TryParse(tempDoctype, true, out DocType)) {
+                    DocType = (DocumentType) Enum.Parse(typeof(DocumentType), section.Keys["DocumentType"], true);
+                }
+                */
         }
     }
 
@@ -70,7 +75,6 @@ namespace TDriver {
         public static Int16 FileDelayTime;
         public static List<AP_Subsection> WatchList;
         private static IniData _iniData;
-
         public static Version AppVersion;
 
         public static void Setup(String settingsIni) {
@@ -78,6 +82,7 @@ namespace TDriver {
 
             var iniFileParser = new FileIniDataParser();
             iniFileParser.Parser.Configuration.CommentString = "#";
+            //Todo handle two or more sections with same name.
             _iniData = iniFileParser.ReadFile(settingsIni);
 
             //Load the general section variables

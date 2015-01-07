@@ -13,6 +13,16 @@ namespace TDriver {
         private readonly string _server;
         private readonly string _userId;
 
+        /// <summary>
+        /// Fax work constructor used by both Medicals and DPAs from the WorkFactory.
+        /// </summary>
+        /// <param name="moveLocation"></param>
+        /// <param name="origDocument"></param>
+        /// <param name="faxNumber"></param>
+        /// <param name="recipient"></param>
+        /// <param name="fileToSend"></param>
+        /// <param name="fax">Document object</param>
+        /// <param name="subsection"></param>
         public FaxWork(string moveLocation, string origDocument, string faxNumber, string recipient, string fileToSend,
             AP_Document fax, AP_Subsection subsection) : base(moveLocation, origDocument) {
             _fax = fax;
@@ -20,14 +30,21 @@ namespace TDriver {
             _server = subsection.Server;
             _comment = subsection.FaxComment;
             this.Recipient = recipient;
+            this.SubSection = subsection.Name;
         }
 
+        /// <summary>
+        /// Fax constructor (Deprecated)
+        /// </summary>
+        /// <param name="fax"></param>
+        /// <param name="subsection"></param>
         public FaxWork(AP_Document fax, AP_Subsection subsection) : base(subsection.MoveFolder, fax.Document) {
             _fax = fax;
             _userId = subsection.UserId;
             _server = subsection.Server;
             _comment = subsection.FaxComment;
-            this.Recipient = fax.CustomerName;
+            this.Recipient = fax.SendTo;
+            this.SubSection = subsection.Name;
         }
 
         public override AP_Document DocObject => _fax;
@@ -43,12 +60,12 @@ namespace TDriver {
         }
 
         public override Boolean Process() {
-            //Verify the fax meets critera.
+            //Verify the fax meets criteria.
             //TODO Add a Validate function to Fax class
             if (!_fax.IsValid) return false;
 
 #if DEBUG //Allow simulating a successful/failed fax, outside of production system.
-            //Debug result :: Faxing Success.
+    //Debug result :: Faxing Success.
             _fax.AddSentTime();
             Debug.WriteLine(String.Format("Faxed {0} to {1} for {2} with account {3} using Server:{4}, User:{5}.",
                 Attachment, FaxNumber, Recipient, _fax.Account, _server, _userId));
@@ -61,7 +78,7 @@ namespace TDriver {
                 faxsvr.OpenServer();
 
                 //Create the fax and send.
-                RFCOMAPILib.Fax newFax = CreateRightFax_Fax(faxsvr);
+                Fax newFax = CreateRightFax_Fax(faxsvr);
                 newFax.Send();
                 _fax.AddSentTime();
 
@@ -79,13 +96,12 @@ namespace TDriver {
 #endif
         }
 
-
 #if !DEBUG //Directive used here so application can be debugged and tested on a machine WITHOUT the RFCOMAPI.dll
 
-    /// <summary>
-    ///     Setup RightFax server connection.
-    /// </summary>
-    /// <returns></returns>
+        /// <summary>
+        ///     Setup RightFax server connection.
+        /// </summary>
+        /// <returns></returns>
         private FaxServer SetupRightFaxServer() {
             var faxsvr = new FaxServer {
                 ServerName = _server,
@@ -101,8 +117,8 @@ namespace TDriver {
         /// </summary>
         /// <param name="faxsvr"></param>
         /// <returns></returns>
-        private RFCOMAPILib.Fax CreateRightFax_Fax(FaxServer faxsvr) {
-            var newFax = (RFCOMAPILib.Fax) faxsvr.CreateObject[CreateObjectType.coFax];
+        private Fax CreateRightFax_Fax(FaxServer faxsvr) {
+            var newFax = (Fax) faxsvr.CreateObject[CreateObjectType.coFax];
             newFax.ToName = this.Recipient;
             newFax.ToFaxNumber = this.FaxNumber;
             newFax.Attachments.Add(this.Attachment);

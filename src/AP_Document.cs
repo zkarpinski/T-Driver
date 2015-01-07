@@ -19,6 +19,22 @@ namespace TDriver {
     }
 
     public class AP_Document {
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        protected AP_Document() {}
+
+        /// <summary>
+        /// Constructor used by the derived classes as base.
+        /// </summary>
+        /// <param name="document"></param>
+        protected AP_Document(string document) {
+            IsValid = true;
+            Sent = false;
+            this.Document = document;
+            this.FileName = Path.GetFileNameWithoutExtension(Document);
+            this.FileCreationTime = RemoveMilliseconds(File.GetCreationTime(Document));
+        }
 
         //Data properties
         public string SendTo { get; set; }
@@ -29,48 +45,47 @@ namespace TDriver {
         public string ServiceAddress { get; protected set; }
         public string FileName { get; protected set; }
         public DeliveryMethodType DeliveryMethod { get; protected set; }
-        public virtual DocumentType DocumentType { get { return DocumentType.ERROR; } }
         public DateTime TimeSent { get; private set; }
         public DateTime FileCreationTime { get; protected set; }
+        public virtual DocumentType DocumentType {
+            get { return DocumentType.ERROR; }
+        }
 
         //Internal use properties
         public Boolean IsValid { get; set; }
         public Boolean Sent { get; set; }
-        public Boolean Rejected { get; set; }
+        public String InvalidReason { get; set; }
 
-        protected AP_Document() {}
-
-        protected AP_Document(string document) {
-            IsValid = true;
-            Sent = false;
-            Rejected = false;
-            this.Document = document;
-            this.FileName = Path.GetFileNameWithoutExtension(Document);
-            this.FileCreationTime = RemoveMilliseconds(File.GetCreationTime(Document));
-        }
-
+        /// <summary>
+        /// Acquire the account number, if one exists, using Regular Expressions
+        /// </summary>
+        /// <param name="strAccount">String to check for account number.</param>
+        /// <returns>String "#####-#####" or null</returns>
         protected string RegexAccount(string strAccount) {
             const string rgxAccountPattern = @"\d{5}-\d{5}";
             var rgx = new Regex(rgxAccountPattern, RegexOptions.IgnoreCase);
-            MatchCollection matches = rgx.Matches(strAccount);
-            if (matches.Count > 0) {
-                return matches[0].Value;
+            Match match = rgx.Match(strAccount);
+            if (match.Success) {
+                return match.Value;
             }
             IsValid = false;
             return null;
         }
 
+        /// <summary>
+        /// Stores the time when the method is called, as the time sent.
+        /// </summary>
         public void AddSentTime() {
             TimeSent = RemoveMilliseconds(DateTime.Now);
         }
 
         /// <summary>
-        /// Define the delivery method and change what file is sent.
+        ///     Define the delivery method and change what file is sent.
         /// </summary>
         /// <remarks>
-        /// Mail = Original Document
-        /// Email = .PDF
-        /// Fax = Original Document
+        ///     Mail = Original Document
+        ///     Email = .PDF
+        ///     Fax = Original Document
         /// </remarks>
         /// <param name="delivery"></param>
         public void ChangeDeliveryType(DeliveryMethodType delivery) {
@@ -78,7 +93,6 @@ namespace TDriver {
             if (delivery == DeliveryMethodType.Email)
                 this.FileToSend = String.Format(@"{0}\{1}.pdf", Settings.PdfsPath, this.FileName);
             else if (delivery == DeliveryMethodType.Mail)
-                //Todo decide if mail items should be made to pdfs first.
                 this.FileToSend = this.Document;
             else if (delivery == DeliveryMethodType.Fax)
                 this.FileToSend = this.Document;
@@ -87,7 +101,7 @@ namespace TDriver {
         }
 
         /// <summary>
-        ///     Removes milliseconds from DateTime
+        ///     Removes milliseconds from DateTime to match Access 2003 Date/Time field.
         /// </summary>
         /// <remarks>http://stackoverflow.com/questions/1004698/how-to-truncate-milliseconds-off-of-a-net-datetime/1004708#1004708</remarks>
         protected DateTime RemoveMilliseconds(DateTime date) {

@@ -1,7 +1,7 @@
 T-Driver
 ========
 
-__(work in progress)__
+Download the latest compiled version [Here](http://zacharykarpinski.com/projects/tdriver/TDriver_latest.zip)
 
 ![Running](http://zacharykarpinski.com/projects/tdriver/img/tdriver_running.png "T-Driver while running.")
 
@@ -13,6 +13,8 @@ A tool designed to automate the T: Drive with functions such as faxing, emailing
  * Highly customizable settings using standard INI file.
  * Zero user interaction.
  * Light-weight and portable.
+ * Database connection for metrics and record keeping
+ * Basic error logging and indicators.
 
 ##Requirements
  * [.Net Framework v4.0](http://www.microsoft.com/en-us/download/details.aspx?id=17851)
@@ -26,17 +28,17 @@ A tool designed to automate the T: Drive with functions such as faxing, emailing
  3. Run `T-Driver` and press `Start`.
 
 ##Build Requirements
-* Visual Studio 2013
+* Visual Studio 2015
 * [.Net Framework v4.0](http://www.microsoft.com/en-us/download/details.aspx?id=17851)
 * RightFax RFCOMAPI.dll
 * [Office 2003 Update: Redistributable Primary Interop](http://support.microsoft.com/kb/897646)
-* [Ini File Parser] (https://github.com/rickyah/ini-parser)
+* [Ini File Parser] (https://github.com/rickyah/ini-parser) __Included__
+* [FileWatcherEx] (http://www.codeproject.com/Articles/58740/FileSystemWatcher-Pure-Chaos-Part-of) __Included__
 
 
 ##Coming Soon...
  * Email support.
  * Print queuing, for files that are to be printed out manually later.
  * Print mailing labels.
- * Data logging for errors, metrics and general logs.
 
 Copyright (c) 2014 Zachary Karpinski

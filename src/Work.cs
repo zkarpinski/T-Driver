@@ -15,14 +15,15 @@ namespace TDriver {
         }
 
         public abstract AP_Document DocObject { get; }
+        public String SubSection { get; protected set; }
         public DocumentType DocType { get; protected set; }
         protected string MoveLocation { private get; set; }
         protected string DocumentToMove { private get; set; }
 
         public bool Move() {
-            var fileName = Path.GetFileName(DocumentToMove);
+            String fileName = Path.GetFileName(DocumentToMove);
             if (fileName == null) return false;
-            var saveAs = Path.Combine(MoveLocation, fileName);
+            String saveAs = Path.Combine(MoveLocation, fileName);
 
             //Delete the file in the destination if it exists already.
             // since File.Move does not overwrite.

@@ -1,21 +1,25 @@
-﻿using System;
+﻿#region
+
+using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using CDO;
 using Microsoft.Office.Interop.Word;
-using System.Diagnostics;
+
+#endregion
 
 namespace TDriver {
     public class EmailWork : Work {
-        private readonly string _eMsg;
         private readonly AP_Document _email;
+        private readonly string _eMsg;
         private readonly string _sendAs;
-
         // email work constructor for work factory
-        public EmailWork(string moveLocation, string origDocument, string sendAs, string eMsg, AP_Document email) : base(moveLocation, origDocument) {
-            this._email = email;
-            this._sendAs = sendAs;
-            this._eMsg = eMsg;
+        public EmailWork(string moveLocation, string origDocument, string sendAs, string eMsg, AP_Document email)
+            : base(moveLocation, origDocument) {
+            _email = email;
+            _sendAs = sendAs;
+            _eMsg = eMsg;
         }
 
         //Deprecated
@@ -23,28 +27,30 @@ namespace TDriver {
             _email = eEmail;
             _sendAs = subsection.SendEmailFrom;
             MoveLocation = subsection.MoveFolder;
-            
         }
 
         public override AP_Document DocObject => _email;
 
-        public string Attachment => _email.FileToSend;
+        public string Attachment {
+            get { return _email.FileToSend; }
+        }
 
         public override bool Process() {
 #if DEBUG //Allow simulating
     //Debug result :: Email Success.
-    _email.AddSentTime();
-            Debug.WriteLine(String.Format("Emailed {0} to {1} for {2} with account {3} using Email:{4}.", Attachment, _email.SendTo, _email.CustomerName, _email.Account, _sendAs));
+            _email.AddSentTime();
+            Debug.WriteLine(String.Format("Emailed {0} to {1} for {2} with account {3} using Email:{4}.", Attachment,
+                _email.SendTo, _email.CustomerName, _email.Account, _sendAs));
             return true;
-            
+
             //if (!CreatePdfToSend()) return false;
             //Send email
-           // return SendEmail();
+            // return SendEmail();
 
 
 #else
-            //Release: Does NOT processs
-            //Todo: Get working consistantly
+            //Release: Does NOT process
+            //Todo: Get it working consistently
             return false;
 
 #endif
@@ -61,9 +67,9 @@ namespace TDriver {
 
                 //Open the DPA Document with options:
                 //  Don't confirm conversion from RTF to doc
-                //  Open as readonly
+                //  Open as read-only
                 //  Don't add to recent list
-                _Document oDoc = wApp.Documents.Open(_email.Document, false, true, false); //readonly,
+                _Document oDoc = wApp.Documents.Open(_email.Document, false, true, false); //read only,
                 oDoc.PrintOut(false); //Printout NOT async(background)
 
                 //Changes the default printer back
@@ -98,7 +104,7 @@ namespace TDriver {
         }
 
         /// <summary>
-        ///     Creates and sends an email using the data from email dpa-type field.
+        ///     Creates and sends an email using the data from email field.
         /// </summary>
         /// <returns>Success or Fail.</returns>
         private bool SendEmail() {

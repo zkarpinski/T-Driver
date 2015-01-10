@@ -13,7 +13,8 @@ namespace TDriver {
     ///     DPA-99999-99999.doc                                                     (DPA Email, DPA Mail or DPA Fax Document)
     ///     DPA-99999-99999-For-NAME_HERE-FaxTo-1-999-999-9999-ATTN-NAME_HERE.doc   (DPA Fax Document)
     ///     DPA-99999-99999-For-NAME_HERE-FaxTo-1-999-999-9999                      (DPA Fax Document)
-    ///     99999-99999_faxto-1-999-999-9999.doc                                    (DPA2 Fax Document)
+    ///     99999-99999_faxto-1-999-999-9999.doc                                    (NR DPA Fax Document)
+    ///     99999-99999.doc                                                         (NR DPA Fax Document)
     /// </remarks>
     public static class AP_Factory {
         private static readonly Parser parser = new Parser();
@@ -35,7 +36,7 @@ namespace TDriver {
 
             //Manage derived class, specific options
             //**DPA***
-            if (docType == DocumentType.DPA && newApDoc is DPA) {
+            if ((docType == DocumentType.DPA || docType == DocumentType.NR_DPA) && newApDoc is DPA) {
                 //Add the type of DPA to the class.
                 ((DPA)newApDoc).KindOfDPA = subsection.Name;
             }
@@ -51,7 +52,6 @@ namespace TDriver {
                 }
 
             }
-
 
             //Determine the delivery method by analyzing the "SendTo" field's contents.
             Tuple<DeliveryMethodType, string> result = DetermineDeliveryMethod(newApDoc.SendTo);
@@ -120,12 +120,22 @@ namespace TDriver {
             }
 
             //Check for DPA
-            //Looks for 'DPA-99999-99999-'
+            //Looks for 'DPA-99999-99999'
             const String rgxDPAConvention = @"DPA-\d{5}-\d{5}";
             rgx = new Regex(rgxDPAConvention, RegexOptions.IgnoreCase);
             Match dpaMatch = rgx.Match(file);
             if (dpaMatch.Success) {
                 return DocumentType.DPA;
+            }
+
+            //Check for NR DPA
+            //Looks for '99999-99999'
+            //TODO find better way of determining if it's an NR DPA
+            const String rgxNRDPAConvention = @"\d{5}-\d{5}";
+            rgx = new Regex(rgxNRDPAConvention, RegexOptions.IgnoreCase);
+            Match nrDPAMatch = rgx.Match(file);
+            if (nrDPAMatch.Success) {
+                return DocumentType.NR_DPA;
             }
 
             return DocumentType.ERROR;

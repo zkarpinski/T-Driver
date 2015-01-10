@@ -45,7 +45,7 @@ namespace TDriver {
             SendEmailFrom = section.Keys["SendEmailFrom"];
             //Default to the default Rightfax comment if one is not defined.
             FaxComment = section.Keys["RightFaxComment"] ??
-                         String.Format("{0} {1}", DEFAULT_RIGHT_FAX_COMMENT, Settings.AppVersion.ToString());
+                         String.Format("{0} {1}.{2}.{3}", DEFAULT_RIGHT_FAX_COMMENT, Settings.AppVersion.Major.ToString(), Settings.AppVersion.Minor.ToString(), Settings.AppVersion.Build.ToString());
 
             if (!Directory.Exists(WatchFolder)) {
                 IsValid = false;

@@ -31,15 +31,22 @@ namespace TDriver {
         ///     You MUST explicitly tell it which document type you are trying to parse.
         /// </remarks>
         public AP_Document FindData(string file, DocumentType docType) {
-            //TODO Check if file in use
             RTFDomDocument domDoc = new RTFDomDocument();
-            domDoc.Load(file);
-
+            try {
+                domDoc.Load(file);
+            }
+            catch (Exception ex) {
+                Logger.AddError(Settings.ErrorLogfile,file + ": RTFParser error. " + ex.Message);
+                return null;
+            }
+            
             switch (docType) {
                 case DocumentType.DPA:
                     return DPA_Parser(ref domDoc, file);
                 case DocumentType.CME:
                     return CME_Parser(ref domDoc, file);
+                case DocumentType.NR_DPA:
+                    return NR_DPA_Parser(ref domDoc, file);
                 default:
                     return null;
             }
@@ -89,6 +96,36 @@ namespace TDriver {
         }
 
         /// <summary>
+        ///     Parser for NR DPA Documents
+        /// </summary>
+        /// <param name="dpaDoc"></param>
+        /// <param name="file"></param>
+        /// <returns>New DPA class or NULL</returns>
+        /// <remarks>
+        ///     Table 1: 6 Rows
+        ///     Table 2: (Not parsed)
+        ///     Table 3: (Not parsed)
+        ///     Table 4: (Not parsed)
+        /// </remarks>
+        private AP_Document NR_DPA_Parser(ref RTFDomDocument dpaDoc, string file) {
+            if (dpaDoc.Elements.OfType<RTFDomTable>().Count() == 4) {
+                RTFDomTable[] docTables = dpaDoc.Elements.OfType<RTFDomTable>().ToArray();
+
+                //1st table.
+                RTFDomElementList firstTableRows = docTables[0].Elements;
+                if (firstTableRows.Count != 6) return null; //Verify the correct number of rows exists.
+                String sendTo = DataScrubber(firstTableRows[2].Elements[4].InnerText.Replace("Fax to: ", String.Empty));
+                String customer = DataScrubber(firstTableRows[1].Elements[0].InnerText.Replace("Customer Name", String.Empty));
+                String accountNumber = DataScrubber(firstTableRows[1].Elements[6].InnerText.Replace("Account Number", String.Empty));
+                String serviceAddress = DataScrubber(firstTableRows[3].Elements[0].InnerText.Replace("Service address", String.Empty));
+                String dateOffered = "";
+                return new DPA(accountNumber, sendTo, customer, serviceAddress, dateOffered, file);
+
+            }
+            return null;
+        }
+
+        /// <summary>
         ///     Parser for DPA Documents
         /// </summary>
         /// <param name="dpaDoc"></param>
@@ -98,17 +135,17 @@ namespace TDriver {
         ///     Table 1: 3 Rows x 2 Columns
         /// </remarks>
         private AP_Document DPA_Parser(ref RTFDomDocument dpaDoc, string file) {
-            //Code is similar to CME_Parser but utilizes Linq. (Cause why not try out different things) =)
+            //Code is similar to NR_DPA_Parser but utilizes Linq. (Cause why not try out different things) =)
             if (dpaDoc.Elements.OfType<RTFDomTable>().Any()) {
                 return (from table in dpaDoc.Elements.OfType<RTFDomTable>()
-                    select table.Elements
+                        select table.Elements
                     into rows
-                    let sendTo = DataScrubber(rows[0].Elements[0].InnerText)
-                    let customer = DataScrubber(rows[1].Elements[0].InnerText)
-                    let accountNumber = DataScrubber(rows[1].Elements[1].InnerText)
-                    let serviceAddress = DataScrubber(rows[2].Elements[0].InnerText)
-                    let dateOffered = DataScrubber(rows[2].Elements[1].InnerText)
-                    select new DPA(accountNumber, sendTo, customer, serviceAddress, dateOffered, file)).FirstOrDefault();
+                        let sendTo = DataScrubber(rows[0].Elements[0].InnerText)
+                        let customer = DataScrubber(rows[1].Elements[0].InnerText)
+                        let accountNumber = DataScrubber(rows[1].Elements[1].InnerText)
+                        let serviceAddress = DataScrubber(rows[2].Elements[0].InnerText)
+                        let dateOffered = DataScrubber(rows[2].Elements[1].InnerText)
+                        select new DPA(accountNumber, sendTo, customer, serviceAddress, dateOffered, file)).FirstOrDefault();
             }
             return null;
         }

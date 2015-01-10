@@ -37,7 +37,8 @@ namespace TDriver {
             const string rgxZipPattern = @"\s\d{5}";
             var rgx = new Regex(rgxZipPattern, RegexOptions.IgnoreCase);
             MatchCollection matches = rgx.Matches(ServiceAddress);
-            if (matches.Count < 1) return true; //TODO Decide on path, but if no zip is found, continue anyway.
+            if (matches.Count < 1)
+                return false; //If no zip is found, don't continue. (Manager choice)
             String zipcode = matches[matches.Count - 1].Value.Trim(); //Trim to remove space.
              
             //Check zip code against the specified region using Linq.

@@ -16,6 +16,7 @@ namespace TDriver {
         ERROR = 0,
         DPA = 1,
         CME = 2,
+        NR_DPA = 3,
     }
 
     public class AP_Document {

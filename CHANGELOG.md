@@ -1,4 +1,21 @@
-## T-Drive 1.1.1   2015-01-07
+## T-Driver 1.1.2   2015-01-09
+
+Features:
+
+  - Added support for NR DPAs.
+
+Code Changes:
+
+   - Medicals are skipped when no zip code is found.
+   - Default rightfax comment no longer shows revision number. ie: This would show 1.1.2 instead of 1.1.2.42873
+   - Added separate parser for NR DPAs.
+   - Other minor code changes added to fully support NR DPAs.
+
+Bug Fix:
+
+   - No longer crashes when file is in use when the parser loads the file.
+
+## T-Driver 1.1.1   2015-01-07
 
 Features:
 
@@ -22,7 +39,7 @@ Code Changes:
   - Spell check =)
   
 
-## T-Drive 1.0.1 2014-11-24
+## T-Driver 1.0.1 2014-11-24
 
 Features:
 

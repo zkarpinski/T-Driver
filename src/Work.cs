@@ -25,17 +25,20 @@ namespace TDriver {
             if (fileName == null) return false;
             String saveAs = Path.Combine(MoveLocation, fileName);
 
-            //Delete the file in the destination if it exists already.
-            // since File.Move does not overwrite.
-            if (File.Exists(saveAs)) {
-                File.Delete(saveAs);
-            }
+            //Move the file to the MoveFolder specified in settings.
             try {
+                //Delete the file in the destination if it exists already.
+                // since File.Move does not overwrite.
+                if (File.Exists(saveAs)) {
+                    File.Delete(saveAs);
+                }
+
                 File.Move(DocumentToMove, saveAs);
                 return true;
             }
-            catch (Exception) {
-                //Todo add notifcation or error log.
+            catch (Exception ex) {
+                Logger.AddError(Settings.ErrorLogfile,
+                    String.Format("Failed to move file {0}. {1}", fileName, ex.Message));
                 return false;
             }
         }

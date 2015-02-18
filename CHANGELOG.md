@@ -1,3 +1,14 @@
+## T-Driver 1.1.3	2015-02-15
+
+Code Changes:
+
+   - Verify the database file exists before trying to connect.
+   - Minor cleanups
+
+Bug Fix:
+
+	- No longer crashes on NewFileCreated trigger when file doesn't exist.
+
 ## T-Driver 1.1.2   2015-01-09
 
 Features:

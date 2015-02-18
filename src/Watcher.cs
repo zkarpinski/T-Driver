@@ -25,6 +25,7 @@ namespace TDriver {
             //Check if the directory exists.
             if (!Directory.Exists(sPath)) {
                 Logger.AddError(Settings.ErrorLogfile, sPath + " does not exist!");
+                folderSubsection.IsValid = false;
                 return;
             }
             try {
@@ -39,7 +40,7 @@ namespace TDriver {
                     WatchPath = sPath, //Path to Watch
                     BufferKBytes = 8, //Default Buffer
                     MonitorPathInterval = 2*60*1000, //Check folder availability every two minutes.
-                    FileFilter = "*.doc"
+                    FileFilter = "*.doc" //Filter for ONLY word documents.
                 };
 
                 // Watch the directory for new word documents.
@@ -57,9 +58,17 @@ namespace TDriver {
         /// <param name="file"></param>
         /// <param name="fileSubsection"></param>
         private void NewFileCreated(string file, AP_Subsection fileSubsection) {
-            //Skip the file if it's hidden
-            //Used to ignore temp files created from Word.
-            if ((File.GetAttributes(file) & FileAttributes.Hidden) == FileAttributes.Hidden) {
+            try {
+                //Skip the file if it doesn' exist
+                ///Handles events that trigger if file got moved.
+                //Skip the file if it's hidden
+                ///Used to ignore temp files created from Word.
+                if (!File.Exists(file) || ((File.GetAttributes(file) & FileAttributes.Hidden) == FileAttributes.Hidden)) {
+                    return;
+                }
+            }
+            catch (Exception) {
+
                 return;
             }
 
@@ -71,14 +80,13 @@ namespace TDriver {
             aTimer.Enabled = true;
         }
 
-        ///Stops the watcher (and disposes)
+        ///Stop the Watcher
         public void Stop() {
             _watcher.Stop();
-            //_watcher.Dispose();
         }
 
         /// <summary>
-        /// Starts the Watcher
+        /// Start the Watcher
         /// </summary>
         public void Start() {
             _watcher.Start();

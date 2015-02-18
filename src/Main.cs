@@ -92,8 +92,7 @@ namespace TDriver {
 
             //Queue Directories and create the watchers
             foreach (AP_Subsection subsection in Settings.WatchList) {
-                if (subsection.IsValid == false) continue;
-                if (Directory.Exists(subsection.WatchFolder)) {
+                if (subsection.IsValid && Directory.Exists(subsection.WatchFolder)) {
                     //Queue Existing Files in the folder
                     _docWorkQueue.QueueDirectory(subsection.WatchFolder, subsection);
 
@@ -191,6 +190,10 @@ namespace TDriver {
                     _docWorkQueue.StopQWorker();
                 _docWorkQueue.Dispose();
             }
+        }
+
+        private void toolStripStatusLabel1_Click(object sender, EventArgs e) {
+            Process.Start("mailto:Zachary.Karpinski@nationalgrid.com?subject=TDriver");
         }
     }
 }

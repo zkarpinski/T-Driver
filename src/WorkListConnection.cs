@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Data;
 using System.Data.OleDb;
 
@@ -13,12 +14,22 @@ namespace TDriver {
             "VALUES (@delivery,@account,@drName,@drFaxNumber,@drPhoneNumber,@drCompany,@accountHolder,@patientName,@serviceAddress,@timeSent,@fileCreationTime,@document)";
 
         private static OleDbConnection _con;
+        private static String _dbFile;
 
         public WorkListConnection(string databaseFile) {
             _con = new OleDbConnection(
                 @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + databaseFile);
+            _dbFile = databaseFile;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dpaDoc"></param>
+        /// <returns>
+        ///     True: Success
+        ///     False: Fail
+        /// </returns>
         private bool AddDPARecord(DPA dpaDoc) {
             try {
                 _con.Open();
@@ -47,6 +58,14 @@ namespace TDriver {
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cmeDoc"></param>
+        /// <returns>
+        ///     True: Success
+        ///     False: Fail
+        /// </returns>
         private bool AddMedicalRecord(MedicalCME cmeDoc) {
             try {
                 _con.Open();
@@ -80,14 +99,19 @@ namespace TDriver {
         }
 
         public bool Add(AP_Document doc) {
-            switch (doc.DocumentType) {
-                case DocumentType.DPA:
-                    return AddDPARecord((DPA) doc);
-                case DocumentType.CME:
-                    return AddMedicalRecord((MedicalCME) doc);
+            if (File.Exists(_dbFile)) {
+                switch (doc.DocumentType) {
+                    case DocumentType.DPA:
+                        return AddDPARecord((DPA)doc);
+                    case DocumentType.CME:
+                        return AddMedicalRecord((MedicalCME)doc);
+                }
+                return false;
             }
-
-            return false;
+            else {
+                Logger.AddError(Settings.ErrorLogfile, "Database not found: " + _dbFile);
+                return false;
+            }
         }
     }
 }

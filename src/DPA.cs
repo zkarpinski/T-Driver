@@ -15,7 +15,7 @@ namespace TDriver {
             ServiceAddress = serviceAddress.Replace("Service Address ", String.Empty).Trim();
         }
 
-        //Properties unique to Medical CMEs
+        //Properties unique to DPAs
         public string KindOfDPA { get; set; }
         public override DocumentType DocumentType => DocumentType.DPA;
 

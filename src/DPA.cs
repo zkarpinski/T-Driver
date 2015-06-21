@@ -1,4 +1,12 @@
-﻿using System;
+﻿/*
+* T-Driver v1.1.x - https://github.com/zKarp/T-Driver
+* Automates faxing using RightFax
+* Copyright (c) 2014 Zachary Karpinski (http://zacharykarpinski.com)
+* Licensed under the GNU General Public License (GPL)
+* https://github.com/zKarp/T-Driver/blob/master/LICENSE
+* DPA.cs
+*/
+using System;
 
 namespace TDriver {
     public class DPA : AP_Document {

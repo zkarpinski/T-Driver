@@ -1,8 +1,22 @@
-﻿using System;
+﻿/*
+* T-Driver v1.1.x - https://github.com/zKarp/T-Driver
+* Automates faxing using RightFax
+* Copyright (c) 2014 Zachary Karpinski (http://zacharykarpinski.com)
+* Licensed under the GNU General Public License (GPL)
+* https://github.com/zKarp/T-Driver/blob/master/LICENSE
+* AP_Document.cs
+*/
+
+using System;
 using System.IO;
 using System.Text.RegularExpressions;
 
 namespace TDriver {
+    /// <summary>
+    ///  Base Class for AP Documents
+    /// </summary>
+   
+    //Define the Delivery Methods
     [Flags]
     public enum DeliveryMethodType {
         Err = 0,
@@ -11,6 +25,7 @@ namespace TDriver {
         Mail = 3,
     }
 
+    //Define the Supported Document Types
     [Flags]
     public enum DocumentType {
         ERROR = 0,
@@ -37,7 +52,7 @@ namespace TDriver {
             this.FileCreationTime = RemoveMilliseconds(File.GetCreationTime(Document));
         }
 
-        //Data properties
+        //Data properties shared by all derived classes
         public string SendTo { get; set; }
         public string CustomerName { get; protected set; }
         public string Document { get; protected set; }
@@ -55,7 +70,7 @@ namespace TDriver {
         //Internal use properties
         public Boolean IsValid { get; set; }
         public Boolean Sent { get; set; }
-        public String InvalidReason { get; set; }
+        public String InvalidReason { get; set; } //Unused property as of 03/04/15
 
         /// <summary>
         /// Acquire the account number, if one exists, using Regular Expressions

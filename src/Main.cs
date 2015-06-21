@@ -1,4 +1,14 @@
-﻿using System;
+﻿/*
+* T-Driver v1.1.x - https://github.com/zKarp/T-Driver
+* Automates faxing using RightFax
+* Copyright (c) 2014 Zachary Karpinski (http://zacharykarpinski.com)
+* Licensed under the GNU General Public License (GPL)
+* https://github.com/zKarp/T-Driver/blob/master/LICENSE
+* Main Form
+* Handles user interaction
+*/
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -47,6 +57,24 @@ namespace TDriver {
             }
         }
 
+        //When form closes, stop watchers and clean up
+        private void MainFormClosing(object sender, FormClosingEventArgs e) {
+            if (_folderWatchList != null) {
+                //Stop each folder watcher and clear list.
+                foreach (Watcher watcher in _folderWatchList) {
+                    watcher.Stop();
+                }
+                _folderWatchList.Clear();
+            }
+
+            //Dispose work queue and queue worker.
+            if (_docWorkQueue != null) {
+                if (_docWorkQueue.IsRunning)
+                    _docWorkQueue.StopQWorker();
+                _docWorkQueue.Dispose();
+            }
+        }
+
         /// <summary>
         ///     Fills and resizes the WatchFolderListview
         /// </summary>
@@ -54,17 +82,17 @@ namespace TDriver {
             Settings.WatchList.ForEach(delegate(AP_Subsection subSection) {
                 // ListView Column Order: Server, UserID, WatchFolder, MoveFolder
                 ListViewItem lvi = new ListViewItem(subSection.Name) {
-                    SubItems = {subSection.Server, subSection.UserId, subSection.WatchFolder, subSection.MoveFolder,},
+                    SubItems = {subSection.Server, subSection.UserId, subSection.WatchFolder, subSection.MoveFolder},
                     Tag = subSection
                 };
+                // Mark red if directory is not found.
                 if (subSection.IsValid == false) {
                     lvi.ForeColor = Color.Red;
                 }
-
                 listFoldersWatched.Items.Add(lvi);
             });
 
-            //Resize the columns
+            //Resize the columns (-2 means auto-resize)
             listFoldersWatched.Columns[0].Width = -2; // Name
             listFoldersWatched.Columns[1].Width = -2; // Server
             listFoldersWatched.Columns[2].Width = -2; // User Id
@@ -78,13 +106,11 @@ namespace TDriver {
 
         private void tsBtnStart_Click(object sender, EventArgs e) {
             tbtnStart.Enabled = false;
-            
-
+          
             // Create the queue and watcher list the first time started it'S.
             if (_firstRun) {
                 _folderWatchList = new List<Watcher>(Settings.MAX_WATCHLIST_SIZE);
                 _docWorkQueue = new WorkQueue(Settings.DatabaseFile);
-                
             }
 
             //Start the DPA Queue Worker
@@ -143,11 +169,11 @@ namespace TDriver {
 
 
         private void frmMain_Resize(object sender, EventArgs e) {
-            // Minimize to tray bar. (Task-bar is very crowded at work)
+            // Minimize to tray bar.
             if (FormWindowState.Minimized == WindowState) {
                 notifyIcon1.BalloonTipTitle = "T: Driver";
                 notifyIcon1.BalloonTipText = "Minimized to tray bar.";
-                //notifyIcon1.ShowBalloonTip(50);
+                //notifyIcon1.ShowBalloonTip(200);
                 //ShowInTaskbar = false;
             }
             // Resize the list view
@@ -173,27 +199,11 @@ namespace TDriver {
             about.Show();
         }
 
-        #endregion
-
-        private void MainFormClosing(object sender, FormClosingEventArgs e) {
-            if (_folderWatchList  != null) {
-                //Stop each folder watcher and clear list.
-                foreach (Watcher watcher in _folderWatchList) {
-                    watcher.Stop();
-                }
-                _folderWatchList.Clear();
-            }
-
-            //Dispose work queue and queue worker.
-            if (_docWorkQueue != null) {
-                if (_docWorkQueue.IsRunning)
-                    _docWorkQueue.StopQWorker();
-                _docWorkQueue.Dispose();
-            }
-        }
-
         private void toolStripStatusLabel1_Click(object sender, EventArgs e) {
             Process.Start("mailto:Zachary.Karpinski@nationalgrid.com?subject=TDriver");
         }
+
+        #endregion //UI Region
+
     }
 }

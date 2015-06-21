@@ -14,19 +14,13 @@ namespace TDriver {
         private readonly AP_Document _email;
         private readonly string _eMsg;
         private readonly string _sendAs;
+
         // email work constructor for work factory
         public EmailWork(string moveLocation, string origDocument, string sendAs, string eMsg, AP_Document email)
             : base(moveLocation, origDocument) {
             _email = email;
             _sendAs = sendAs;
             _eMsg = eMsg;
-        }
-
-        //Deprecated
-        public EmailWork(AP_Document eEmail, ref AP_Subsection subsection) {
-            _email = eEmail;
-            _sendAs = subsection.SendEmailFrom;
-            MoveLocation = subsection.MoveFolder;
         }
 
         public override AP_Document DocObject => _email;

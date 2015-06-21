@@ -67,7 +67,7 @@ namespace TDriver {
         }
 
         private void labelCompanyName_Click(object sender, EventArgs e) {
-            Process.Start("mailto:Zachary.Karpinski@nationalgrid.com?subject=TDriver");
+            Process.Start("mailto:Zachary.Karpinski@nationalgrid.com?subject=TDriver v" + Assembly.GetExecutingAssembly().GetName().Version.ToString());
         }
     }
 }

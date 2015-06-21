@@ -4,6 +4,7 @@ Code Changes:
 
    - Verify the database file exists before trying to connect.
    - Minor cleanups
+   - Emailing developer includes the version number in Subject line.
 
 Bug Fix:
 

@@ -57,7 +57,7 @@ namespace TDriver {
             //Create an AP_Document from factory
             AP_Document doc = AP_Factory.Create(file, fileSubsection);
             if (doc == null) {
-                //Logger.AddError(Settings.ErrorLogfile, file + " is not a valid AP Document.");
+                Debug.Print(file + " is not a valid AP Document.");
                 return;
             }
 

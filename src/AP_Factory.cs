@@ -10,6 +10,8 @@ namespace TDriver {
     ///     Acct-99999-99999-To-999-999-9999-To-NAME_HERE.doc                       (Medical Fax Document)
     ///     Acct-99999-99999-To-1-999-999-9999-To-NAME_HERE.doc                     (Medical Fax Document) *when US-code added.
     ///     Acct-99999-99999.doc                                                    (Medical Anomaly Document) *still faxed
+    ///     Acct-99999-99999-Doctor-To-999-999-9999-To-NAME_HERE.doc                (Medical Fax Document Doctor) *added 01/28/16
+    ///     Acct-99999-99999-Customer-To-999-999-9999-To-NAME_HERE.doc                (Medical Fax Document Doctor) *added 01/28/16
     ///     DPA-99999-99999.doc                                                     (DPA Email, DPA Mail or DPA Fax Document)
     ///     DPA-99999-99999-For-NAME_HERE-FaxTo-1-999-999-9999-ATTN-NAME_HERE.doc   (DPA Fax Document)
     ///     DPA-99999-99999-For-NAME_HERE-FaxTo-1-999-999-9999                      (DPA Fax Document)

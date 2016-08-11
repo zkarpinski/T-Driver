@@ -12,11 +12,15 @@
                 case DeliveryMethodType.Fax: //Fax
                     if (doc.GetType() == typeof (MedicalCME)) {
                         MedicalCME medDoc = (MedicalCME) doc;
-                        return new FaxWork(subsection.MoveFolder, medDoc.Document, medDoc.DrFaxNumber, medDoc.DrName,
+                        string moveFolder =  subsection.MoveFolder;
+                        //Move CMEs faxed to the doctor to a different folder.
+                        if (medDoc.IsToDoctor) { moveFolder = subsection.MoveFolder2; }
+
+                        return new FaxWork(moveFolder, medDoc.Document, medDoc.DrFaxNumber, medDoc.DrName,
                             medDoc.FileToSend, doc, subsection);
                     }
-                        return new FaxWork(subsection.MoveFolder, doc.Document, doc.SendTo, doc.CustomerName,
-                            doc.FileToSend, doc, subsection);
+                    return new FaxWork(subsection.MoveFolder, doc.Document, doc.SendTo, doc.CustomerName,
+                        doc.FileToSend, doc, subsection);
                 case DeliveryMethodType.Email: //Email
                     return new EmailWork(subsection.MoveFolder, doc.Document, subsection.SendEmailFrom,
                         Settings.EmailMsg, doc);

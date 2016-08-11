@@ -54,7 +54,7 @@ namespace TDriver {
             Settings.WatchList.ForEach(delegate(AP_Subsection subSection) {
                 // ListView Column Order: Server, UserID, WatchFolder, MoveFolder
                 ListViewItem lvi = new ListViewItem(subSection.Name) {
-                    SubItems = {subSection.Server, subSection.UserId, subSection.WatchFolder, subSection.MoveFolder,},
+                    SubItems = {subSection.Server, subSection.UserId, subSection.WatchFolder, subSection.MoveFolder, subSection.MoveFolder2},
                     Tag = subSection
                 };
                 if (subSection.IsValid == false) {
@@ -70,6 +70,7 @@ namespace TDriver {
             listFoldersWatched.Columns[2].Width = -2; // User Id
             listFoldersWatched.Columns[3].Width = -2; // Watch Folder
             listFoldersWatched.Columns[4].Width = -2; // Move Folder
+            listFoldersWatched.Columns[5].Width = -2; // Move Folder2
         }
 
         #region UI Interaction

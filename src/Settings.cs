@@ -14,13 +14,14 @@ namespace TDriver {
         //Optional Fields
         public readonly string FaxComment;
         //Required fields
-        public readonly string MoveFolder;
         public readonly string Name;
         public readonly string Password;
         public readonly string SendEmailFrom;
         public readonly string Server;
         public readonly string UserId;
         public readonly string WatchFolder;
+        public readonly string MoveFolder;
+        public readonly string MoveFolder2;
         //Internal options.
         public bool DisableEmail;
         public bool DisableFax;
@@ -42,6 +43,7 @@ namespace TDriver {
             Password = section.Keys["Password"];
             WatchFolder = section.Keys["WatchFolder"];
             MoveFolder = section.Keys["MoveFolder"];
+            MoveFolder2 = section.Keys["MoveFolder2"];
             SendEmailFrom = section.Keys["SendEmailFrom"];
             //Default to the default Rightfax comment if one is not defined.
             FaxComment = section.Keys["RightFaxComment"] ??

@@ -16,6 +16,7 @@ namespace TDriver {
             CustomerName = accountHolder;
             PatientName = patientName;
             ServiceAddress = serviceAddress;
+            IsToDoctor = ToDoctorCheck();
         }
 
         //Properties unique to Medical CMEs
@@ -25,6 +26,7 @@ namespace TDriver {
         public string DrName { get; private set; }
         public string DrPhoneNumber { get; private set; }
         public string PatientName { get; private set; }
+        public bool IsToDoctor { get; private set; }
 
         /// <summary>
         /// Checks the zip code prefix against the region given.
@@ -44,6 +46,15 @@ namespace TDriver {
             //Check zip code against the specified region using Linq.
             return Regions.Region(strRegion).ZIPCODE_PREFIXES.Any(zipPrefix => zipcode.StartsWith(zipPrefix));
 
+        }
+
+        private bool ToDoctorCheck() {
+            //Check for Doctor file name formatting
+            //Looks for 'Acct-99999-99999-Doctor-'
+            const String rgxCMEConvention = @"Acct-\d{5}-\d{5}-Doctor-";
+            var rgx = new Regex(rgxCMEConvention, RegexOptions.IgnoreCase);
+            Match cmeMatch = rgx.Match(this.Document);
+                return cmeMatch.Success;
         }
     }
 }

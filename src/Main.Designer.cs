@@ -32,11 +32,11 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
-            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
             "Example1",
             "T"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem("Example2");
-            System.Windows.Forms.ListViewItem listViewItem9 = new System.Windows.Forms.ListViewItem("Example3");
+            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("Example2");
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem("Example3");
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tslblStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
@@ -57,6 +57,7 @@
             this.cUserId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.cFolderWatched = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.cMoveFolder = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.cMoveFolder2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -84,7 +85,7 @@
             // 
             this.toolStripStatusLabel1.Font = new System.Drawing.Font("Segoe UI", 7F);
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(518, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(549, 17);
             this.toolStripStatusLabel1.Spring = true;
             this.toolStripStatusLabel1.Text = "Created By: Zachary Karpinski";
             this.toolStripStatusLabel1.DoubleClick += new System.EventHandler(this.toolStripStatusLabel1_Click);
@@ -126,7 +127,7 @@
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
             this.aboutToolStripMenuItem.Text = "&About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -193,11 +194,12 @@
             this.cServer,
             this.cUserId,
             this.cFolderWatched,
-            this.cMoveFolder});
+            this.cMoveFolder,
+            this.cMoveFolder2});
             this.listFoldersWatched.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem7,
-            listViewItem8,
-            listViewItem9});
+            listViewItem1,
+            listViewItem2,
+            listViewItem3});
             this.listFoldersWatched.Location = new System.Drawing.Point(0, 52);
             this.listFoldersWatched.Name = "listFoldersWatched";
             this.listFoldersWatched.Size = new System.Drawing.Size(603, 215);
@@ -226,6 +228,10 @@
             // cMoveFolder
             // 
             this.cMoveFolder.Text = "Move Folder";
+            // 
+            // cMoveFolder2
+            // 
+            this.cMoveFolder2.Text = "Move Folder 2";
             // 
             // Main
             // 
@@ -278,6 +284,7 @@
         private System.Windows.Forms.ColumnHeader cMoveFolder;
         private System.Windows.Forms.ColumnHeader cServer;
         private System.Windows.Forms.ColumnHeader cUserId;
+        private System.Windows.Forms.ColumnHeader cMoveFolder2;
     }
 }
 

@@ -5,10 +5,10 @@ Download the latest compiled version [Here](http://zacharykarpinski.com/projects
 
 ![Running](http://zacharykarpinski.com/projects/tdriver/img/tdriver_running.png "T-Driver while running.")
 
-##Purpose
+## Purpose
 A tool designed to automate the T: Drive with functions such as faxing, emailing and mailing documents created by representatives.
 
-##Features
+## Features
  * Integration with RightFax to fax out documents.
  * Highly customizable settings using standard INI file.
  * Zero user interaction.
@@ -16,18 +16,18 @@ A tool designed to automate the T: Drive with functions such as faxing, emailing
  * Database connection for metrics and record keeping
  * Basic error logging and indicators.
 
-##Requirements
+## Requirements
  * [.Net Framework v4.0](http://www.microsoft.com/en-us/download/details.aspx?id=17851)
  * Microsoft Office 2003+
  * Windows XP, Vista, 7, 8 or 8.1
  * RightFax 8.7+
 
-##Usage
+## Usage
  1. Compile or extract the zipped executable `T-Driver.zip`.
  2. Modify the `Settings.ini`, following the supplied template.
  3. Run `T-Driver` and press `Start`.
 
-##Build Requirements
+## Build Requirements
 * Visual Studio 2015
 * [.Net Framework v4.0](http://www.microsoft.com/en-us/download/details.aspx?id=17851)
 * RightFax RFCOMAPI.dll
@@ -36,7 +36,7 @@ A tool designed to automate the T: Drive with functions such as faxing, emailing
 * [FileWatcherEx] (http://www.codeproject.com/Articles/58740/FileSystemWatcher-Pure-Chaos-Part-of) __Included__
 
 
-##Coming Soon...
+## Coming Soon...
  * Email support.
  * Print queuing, for files that are to be printed out manually later.
  * Print mailing labels.
